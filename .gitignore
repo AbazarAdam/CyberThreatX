@@ -51,3 +51,6 @@ screenshots/
 temp_verification/
 verify_fix.py
 test_verification.db
+test_outputs/
+config.py
+.DS_Store
