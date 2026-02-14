@@ -105,8 +105,11 @@ def create_alert(event: Dict[str, Any], results: List[Dict[str, Any]], source_ty
     
     return alert
 
+# Cache for compiled rules to avoid redundant compilation
+_COMPILED_RULES_CACHE = None
+
 def run_detection_on_event(event: Dict[str, Any], db_path: str, rules_folder: str, source_type: str = 'syslog') -> Optional[Dict[str, Any]]:
-    """Evaluates Sigma rules on a single normalized event.
+    """Evaluates Sigma rules on a single normalized event using a cached backend.
 
     Args:
         event: The event dictionary to scan.
@@ -117,12 +120,14 @@ def run_detection_on_event(event: Dict[str, Any], db_path: str, rules_folder: st
     Returns:
         The generated alert dictionary if a rule matched, else None.
     """
-    # Note: Optimization - pre-compile rules in a persistent process
-    rule_paths = list(Path(rules_folder).rglob("*.yml")) + list(Path(rules_folder).rglob("*.yaml"))
-    compiled_rules = sigma_backend.compile_sigma_rules_from_files([str(p) for p in rule_paths])
+    global _COMPILED_RULES_CACHE
+    
+    if _COMPILED_RULES_CACHE is None:
+        rule_paths = list(Path(rules_folder).rglob("*.yml")) + list(Path(rules_folder).rglob("*.yaml"))
+        _COMPILED_RULES_CACHE = sigma_backend.compile_sigma_rules_from_files([str(p) for p in rule_paths])
     
     matched_results = []
-    for rule_dict, matcher in compiled_rules:
+    for rule_dict, matcher in _COMPILED_RULES_CACHE:
         if matcher(event):
             metadata = sigma_loader.get_rule_metadata_from_dict(rule_dict)
             matched_results.append(metadata)

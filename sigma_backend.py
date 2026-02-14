@@ -50,7 +50,7 @@ class SimpleSigmaBackend:
             return self._build_matcher_from_detection(detection, condition, rule_title)
             
         except Exception as e:
-            logger.error(f"Error compiling rule '{rule_title}': {str(e)}")
+            logger.error(f"Error compiling rule '{rule_title}': {str(e)}", exc_info=True)
             return lambda event: False
     
     def _build_matcher_from_detection(self, detection: Dict, condition: str, rule_title: str) -> Callable:
@@ -239,34 +239,60 @@ class SimpleSigmaBackend:
         return bool(re.search(pattern, str(event_value), re.IGNORECASE))
     
     def _get_field_value(self, event: Dict[str, Any], field: str) -> Any:
-        """Get a field value from an event."""
-        # Try direct access
-        if field in event:
-            return event[field]
-        
-        # Try nested access
-        if '.' in field:
-            parts = field.split('.')
+        """Gets a field value from an event, supporting case-insensitive matching and nesting.
+
+        Args:
+            event: The event dictionary.
+            field: The field name (can be dot-notated).
+
+        Returns:
+            The field value or None if not found.
+        """
+        # 1. Normalize all event keys to lowercase for robust matching
+        normalized_event = {k.lower(): v for k, v in event.items()}
+        target_field = field.lower()
+
+        # 2. Try direct access in root
+        if target_field in normalized_event:
+            return normalized_event[target_field]
+
+        # 3. Try EventData (common in Sysmon/Windows JSON)
+        event_data = event.get('EventData') or event.get('event_data') or normalized_event.get('eventdata')
+        if isinstance(event_data, dict):
+            norm_ed = {k.lower(): v for k, v in event_data.items()}
+            if target_field in norm_ed:
+                return norm_ed[target_field]
+
+        # 4. Try nested dot-notation access
+        if '.' in target_field:
+            parts = target_field.split('.')
             current = event
             for part in parts:
-                if isinstance(current, dict) and part in current:
-                    current = current[part]
-                else:
+                if not isinstance(current, dict):
                     return None
+                
+                # Case-insensitive part match
+                part_match = next((v for k, v in current.items() if k.lower() == part), None)
+                if part_match is None:
+                    return None
+                current = part_match
             return current
-        
-        # Try EventData
-        if 'EventData' in event and isinstance(event['EventData'], dict):
-            if field in event['EventData']:
-                return event['EventData'][field]
-        
+
         return None
     
     def _evaluate_condition(self, condition: str, results: Dict[str, bool]) -> bool:
-        """Evaluate a Sigma condition string."""
+        """Evaluates a Sigma condition string against selection results.
+
+        Args:
+            condition: The condition string (e.g., "selection1 and not selection2").
+            results: Dictionary mapping selection names to boolean results.
+
+        Returns:
+            Boolean result of the condition evaluation.
+        """
         condition = condition.lower().strip()
         
-        # Simple selection
+        # Simple selection name
         if condition in results:
             return results[condition]
         
@@ -275,6 +301,17 @@ class SimpleSigmaBackend:
             inner = condition[4:].strip()
             return not self._evaluate_condition(inner, results)
         
+        # Handle "1 of X*" or "all of X" (Simplified)
+        if 'all of ' in condition:
+            prefix = condition.replace('all of ', '').strip().rstrip('*')
+            relevant = [v for k, v in results.items() if k.startswith(prefix)]
+            return all(relevant) if relevant else False
+            
+        if '1 of ' in condition:
+            prefix = condition.replace('1 of ', '').strip().rstrip('*')
+            relevant = [v for k, v in results.items() if k.startswith(prefix)]
+            return any(relevant) if relevant else False
+
         # Handle "X and Y"
         if ' and ' in condition:
             parts = condition.split(' and ')
@@ -287,10 +324,13 @@ class SimpleSigmaBackend:
         
         # Handle parentheses
         if '(' in condition:
+            # Very basic paren removal - real parser needed for complex ones
             condition = condition.replace('(', '').replace(')', '')
             return self._evaluate_condition(condition, results)
         
-        # Default
+        if condition not in results:
+            logger.debug(f"Condition term '{condition}' not found in results: {list(results.keys())}")
+            
         return results.get(condition, False)
 
 
@@ -315,8 +355,12 @@ def compile_sigma_rules_from_files(rule_files: List[str]) -> List[Tuple[Dict, Ca
             rule_dict = yaml.safe_load(rule_yaml)
             title = rule_dict.get('title', 'Unknown')
             
+            # Actually compile the rule
+            matcher = backend.compile_rule_from_yaml(rule_yaml, title)
+            compiled.append((rule_dict, matcher))
+            
         except Exception as e:
-            logger.error(f"Failed to compile rule from {rule_file}: {e}")
+            logger.error(f"Failed to compile rule from {rule_file}: {e}", exc_info=True)
             continue
     
     logger.info(f"Compiled {len(compiled)} rules")

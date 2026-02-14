@@ -154,16 +154,15 @@ def init_db(db_path: str = config.DB_PATH) -> None:
         """)
         
         # 7. Event Baseline Table (for ML Scoring)
+        cursor.execute("DROP TABLE IF EXISTS event_baseline")
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS event_baseline (
                 computer TEXT NOT NULL,
-                event_id INTEGER NOT NULL,
-                hour INTEGER NOT NULL, -- 0-23
-                day_of_week INTEGER NOT NULL, -- 0-6
-                avg_count REAL,
-                stddev_count REAL,
-                last_updated TEXT,
-                PRIMARY KEY (computer, event_id, hour, day_of_week)
+                event_type TEXT NOT NULL,
+                average_count REAL,
+                peak_count INTEGER,
+                last_updated TEXT DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (computer, event_type)
             )
         """)
         
