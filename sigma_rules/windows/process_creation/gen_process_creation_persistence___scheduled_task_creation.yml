@@ -1,0 +1,20 @@
+title: Persistence - Scheduled Task Creation
+id: e9a82059-69a6-468d-8202-21661e7505c2
+status: stable
+description: Generated rule for Persistence - Scheduled Task Creation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \schtasks.exe
+    CommandLine|contains:
+    - /create /tn
+    - /create /xml
+  condition: selection
+level: medium
+tags:
+- attack.generated

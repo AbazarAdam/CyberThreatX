@@ -96,7 +96,8 @@
                             <tbody>
                                 <tr>
                                     <th style="width: 40%;">Event ID</th>
-                                    <td><code>{{ alert.event_id }}</code></td>
+                                    <td><code>{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id }}{% endif %}</code>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th>Computer</th>

@@ -1,0 +1,18 @@
+title: Execution via PSExec
+id: d5e4f3a1-b2c3-4d4e-a5b6-c7d8e9f0a1b5
+status: stable
+description: Detects the use of PSExec to execute commands on remote systems
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '\psexec.exe'
+            - '\psexesvc.exe'
+    condition: selection
+level: high
+tags:
+    - attack.lateral_movement
+    - attack.t1570

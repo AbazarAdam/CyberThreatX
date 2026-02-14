@@ -1,0 +1,19 @@
+title: Cobalt Strike C2 Beacons via Default Paths
+id: a1b2c3d4-e5f6-7b8c-9d0e-123456789014
+status: stable
+description: Detects Cobalt Strike beacon execution from common default directories
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|contains:
+            - '\AppData\Local\Temp\beacon.exe'
+            - '\Windows\Temp\beacon.exe'
+            - '\Users\Public\beacon.exe'
+    condition: selection
+level: high
+tags:
+    - attack.command_and_control
+    - attack.t1071

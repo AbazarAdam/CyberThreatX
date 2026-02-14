@@ -13,26 +13,26 @@
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-md-3 mb-3">
+    <div class="col-md-2 mb-3">
         <div class="card stat-card total">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Total Alerts</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Total</h6>
                 <h2 class="card-title mb-0">{{ stats.total_alerts }}</h2>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
+    <div class="col-md-2 mb-3">
         <div class="card stat-card high">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">High Severity</h6>
+                <h6 class="card-subtitle mb-2 text-muted">High</h6>
                 <h2 class="card-title mb-0">{{ stats.alerts_by_severity.get('high', 0) }}</h2>
             </div>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
+    <div class="col-md-2 mb-3">
         <div class="card stat-card medium">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Medium Severity</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Medium</h6>
                 <h2 class="card-title mb-0">{{ stats.alerts_by_severity.get('medium', 0) }}</h2>
             </div>
         </div>
@@ -40,8 +40,23 @@
     <div class="col-md-3 mb-3">
         <div class="card stat-card recent">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Last 24 Hours</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Last 24h</h6>
                 <h2 class="card-title mb-0">{{ stats.alerts_last_24h }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card"
+            style="background: linear-gradient(135deg, #6f42c1, #4b2c82); color: white; border: none; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3); border-radius: 10px;">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2" style="color: rgba(255,255,255,0.7);">Rule Engine Health</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">{{ rule_health.count }}</h2>
+                    <span
+                        class="badge {% if rule_health.status == 'Healthy' %}bg-success{% else %}bg-warning{% endif %}">
+                        {{ rule_health.status }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -128,7 +143,9 @@
                                     </span>
                                 </td>
                                 <td class="text-dark"><strong>{{ alert.score }}/10</strong></td>
-                                <td class="text-dark"><code>{{ alert.event_id }}</code></td>
+                                <td class="text-dark">
+                                    <code>{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id }}{% endif %}</code>
+                                </td>
                                 <td class="text-dark">{{ alert.computer }}</td>
                                 <td>
                                     {% if alert.mitre_technique %}

@@ -1,0 +1,22 @@
+title: Proxy and Tunneling Tools Detection
+id: f1e2d3c4-b5a6-4d7e-9012-34567890b3c4
+status: stable
+description: Detects usage of common proxy and tunneling tools used for exfiltration or C2
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'frpc.exe'
+            - 'frps.exe'
+            - 'nps.exe'
+            - 'chisel'
+            - 'gost'
+            - 'ngrok'
+    condition: selection
+level: high
+tags:
+    - attack.command_and_control
+    - attack.exfiltration
+    - attack.t1572

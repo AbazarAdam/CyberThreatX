@@ -1,0 +1,23 @@
+title: Security Discovery via Net.exe
+id: f3e2d1c0-b5a4-4310-9876-543210fedcbb
+status: stable
+description: Detects account and group discovery using the net command
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\net.exe'
+        CommandLine|contains:
+            - ' user '
+            - ' group '
+            - ' localgroup '
+            - ' view '
+            - ' share '
+    condition: selection
+level: low
+tags:
+    - attack.discovery
+    - attack.t1087
+    - attack.t1069

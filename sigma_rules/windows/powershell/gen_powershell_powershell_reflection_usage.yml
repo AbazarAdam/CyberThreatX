@@ -1,0 +1,18 @@
+title: PowerShell Reflection Usage
+id: 2ad826bd-377c-4b25-82a6-fe2c05c0b519
+status: stable
+description: Generated rule for PowerShell Reflection Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - Reflection.Assembly
+  condition: selection
+level: medium
+tags:
+- attack.generated

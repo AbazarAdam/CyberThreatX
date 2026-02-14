@@ -1,0 +1,20 @@
+title: Remote Access Software Execution
+id: 3d4e5f6a-1b2c-3d4e-5f6a-b7c8d9e0f1a2
+status: stable
+description: Detects execution of common remote access tools which might be used by attackers
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'anydesk.exe'
+            - 'teamviewer.exe'
+            - 'logmein.exe'
+            - 'rustdesk.exe'
+            - 'tightvnc.exe'
+    condition: selection
+level: medium
+tags:
+    - attack.command_and_control
+    - attack.t1219

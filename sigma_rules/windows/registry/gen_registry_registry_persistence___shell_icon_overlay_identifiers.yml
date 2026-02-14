@@ -1,0 +1,15 @@
+title: Registry Persistence - Shell Icon Overlay Identifiers
+id: 9f0a78c5-2376-40a8-af1b-32ebef39968d
+status: stable
+description: Generated rule for Registry Persistence - Shell Icon Overlay Identifiers
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: registry
+  service: null
+detection:
+  selection: {}
+  condition: selection
+level: medium
+tags:
+- attack.generated

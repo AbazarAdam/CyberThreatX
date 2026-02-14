@@ -1,0 +1,21 @@
+title: Netcat Usage - Potential Exfiltration or Reverse Shell
+id: d2c3b4a5-b6c7-4d8e-9012-34567890a2b3
+status: stable
+description: Detects usage of netcat (nc.exe) which is often used for reverse shells or file transfers
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'nc.exe'
+            - ' -lvp '
+            - ' -e cmd.exe '
+            - ' -e /bin/sh '
+            - ' -e /bin/bash '
+    condition: selection
+level: high
+tags:
+    - attack.command_and_control
+    - attack.exfiltration
+    - attack.t1011

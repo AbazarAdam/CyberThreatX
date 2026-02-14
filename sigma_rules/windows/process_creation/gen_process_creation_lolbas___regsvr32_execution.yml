@@ -1,0 +1,22 @@
+title: LOLBAS - Regsvr32 Execution
+id: 4fc67921-b441-4ec3-89dd-6138c8856c62
+status: stable
+description: Generated rule for LOLBAS - Regsvr32 Execution
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \regsvr32.exe
+    CommandLine|contains:
+    - /s
+    - /n
+    - /u
+    - /i:http
+  condition: selection
+level: medium
+tags:
+- attack.generated

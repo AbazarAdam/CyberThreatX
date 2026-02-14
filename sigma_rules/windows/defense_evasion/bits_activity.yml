@@ -1,0 +1,20 @@
+title: BITS Job Usage - Potential Data Exfiltration or Download
+id: 56c7d8e9-f0a1-4b2c-a3d4-e5f6a7b8c9d0
+status: stable
+description: Detects usage of bitsadmin.exe for file transfers
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'bitsadmin'
+            - ' /transfer '
+            - ' /create '
+            - ' /addfile '
+    condition: selection
+level: medium
+tags:
+    - attack.defense_evasion
+    - attack.persistence
+    - attack.t1197

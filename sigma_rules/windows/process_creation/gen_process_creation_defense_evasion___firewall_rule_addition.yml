@@ -1,0 +1,19 @@
+title: Defense Evasion - Firewall Rule Addition
+id: 6d997a63-2450-4627-8725-fde8aafb1454
+status: stable
+description: Generated rule for Defense Evasion - Firewall Rule Addition
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \netsh.exe
+    CommandLine|contains:
+    - advfirewall firewall add rule
+  condition: selection
+level: medium
+tags:
+- attack.generated

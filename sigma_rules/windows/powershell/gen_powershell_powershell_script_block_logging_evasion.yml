@@ -1,0 +1,19 @@
+title: PowerShell Script Block Logging Evasion
+id: cc4427e8-fd41-4141-a955-ec947a4bcf34
+status: stable
+description: Generated rule for PowerShell Script Block Logging Evasion
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - ScriptBlockLogging
+    - EnableBlockLogging
+  condition: selection
+level: medium
+tags:
+- attack.generated

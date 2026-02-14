@@ -1,0 +1,19 @@
+title: Execution - GfxDownloadWrapper
+id: 93d5e735-a85a-48ba-b39b-854f569ac353
+status: stable
+description: Generated rule for Execution - GfxDownloadWrapper
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \GfxDownloadWrapper.exe
+    CommandLine|contains:
+    - http
+  condition: selection
+level: medium
+tags:
+- attack.generated

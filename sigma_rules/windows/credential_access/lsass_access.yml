@@ -1,0 +1,23 @@
+title: LSASS Memory Access - Potential Credential Dumping
+id: f0a1b2c3-d4e5-4f6a-8b9c-0d1e2f3a4b5c
+status: stable
+description: Detects suspicious access to LSASS process memory, often indicating credential dumping
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 10
+        TargetImage|endswith: '\lsass.exe'
+    access:
+        GrantedAccess:
+            - '0x1fffff'
+            - '0x1410'
+            - '0x1010'
+            - '0x1438'
+    condition: selection and access
+level: high
+tags:
+    - attack.credential_access
+    - attack.t1003.001

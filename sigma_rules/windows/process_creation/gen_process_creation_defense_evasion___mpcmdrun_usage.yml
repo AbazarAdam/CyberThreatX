@@ -1,0 +1,19 @@
+title: Defense Evasion - MpCmdRun Usage
+id: a86ce51c-a5fa-4423-ac5b-94f1f48a901b
+status: stable
+description: Generated rule for Defense Evasion - MpCmdRun Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \MpCmdRun.exe
+    CommandLine|contains:
+    - -DownloadFile
+  condition: selection
+level: medium
+tags:
+- attack.generated

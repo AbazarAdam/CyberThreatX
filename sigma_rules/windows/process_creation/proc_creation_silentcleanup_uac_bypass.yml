@@ -1,0 +1,18 @@
+title: UAC Bypass via DiskCleanup Scheduled Task
+id: e1d2c3b4-5678-4a8b-9012-345678901234
+status: stable
+description: Detects potential UAC bypass via the DiskCleanup scheduled task
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\dism.exe'
+        ParentImage|endswith: '\schtasks.exe'
+        CommandLine|contains: '/Run /TN "\Microsoft\Windows\DiskCleanup\SilentCleanup"'
+    condition: selection
+level: high
+tags:
+    - attack.privilege_escalation
+    - attack.t1548.002

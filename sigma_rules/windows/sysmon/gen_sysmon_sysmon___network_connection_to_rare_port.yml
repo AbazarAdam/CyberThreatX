@@ -1,0 +1,20 @@
+title: Sysmon - Network Connection to Rare Port
+id: bca25213-2a31-40c2-b171-b160952112cb
+status: stable
+description: Generated rule for Sysmon - Network Connection to Rare Port
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    CommandLine|contains:
+    - 'DestinationPort: 4444'
+    - 'DestinationPort: 8080'
+    - 'DestinationPort: 1337'
+  condition: selection
+level: medium
+tags:
+- attack.generated

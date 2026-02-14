@@ -1,0 +1,19 @@
+title: PowerShell Encoded Command
+id: 262623ba-7d4c-46fd-a637-e3a7b29641ce
+status: stable
+description: Generated rule for PowerShell Encoded Command
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - -enc
+    - -EncodedCommand
+  condition: selection
+level: medium
+tags:
+- attack.generated

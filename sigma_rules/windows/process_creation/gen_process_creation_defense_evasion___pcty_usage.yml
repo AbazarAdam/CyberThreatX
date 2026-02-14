@@ -1,0 +1,17 @@
+title: Defense Evasion - Pcty Usage
+id: 54670f04-01a9-4942-a5d8-c338b5bf6230
+status: stable
+description: Generated rule for Defense Evasion - Pcty Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \pcty.exe
+  condition: selection
+level: medium
+tags:
+- attack.generated

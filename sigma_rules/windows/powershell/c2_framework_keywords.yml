@@ -1,0 +1,28 @@
+title: PowerShell C2 Framework Keywords
+id: a1b2c3d4-b2c3-4d4e-b5c6-d7e8f9a0b1c2
+status: stable
+description: Detects keywords related to common PowerShell C2 frameworks like Empire or Covenant
+author: CyberThreatX
+logsource:
+    product: windows
+    service: powershell
+detection:
+    selection:
+        EventID: 4104
+    keywords:
+        ScriptBlockText|contains:
+            - 'Empire'
+            - 'Covenant'
+            - 'SharpSploit'
+            - 'Grunts'
+            - 'PowerUp'
+            - 'Mimikatz'
+            - 'Invoke-PSInject'
+            - 'Stage0'
+            - 'Stage1'
+    condition: selection and keywords
+level: critical
+tags:
+    - attack.command_and_control
+    - attack.execution
+    - attack.t1059.001

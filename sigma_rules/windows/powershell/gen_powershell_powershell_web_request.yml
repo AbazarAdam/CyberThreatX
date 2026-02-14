@@ -1,0 +1,19 @@
+title: PowerShell Web Request
+id: c5642fea-daec-41da-b1d1-4dec606b6f70
+status: stable
+description: Generated rule for PowerShell Web Request
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - Invoke-WebRequest
+    - 'iwr '
+  condition: selection
+level: medium
+tags:
+- attack.generated

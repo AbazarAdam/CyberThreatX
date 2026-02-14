@@ -1,0 +1,19 @@
+title: RDP Connection Attempts
+id: 4e3d2c1b-a5b6-4d4e-9012-345678901122
+status: stable
+description: Detects RDP connection attempts which could indicate lateral movement
+author: CyberThreatX
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID:
+            - 4624
+            - 4625
+        LogonType: 10
+    condition: selection
+level: medium
+tags:
+    - attack.lateral_movement
+    - attack.t1021.001

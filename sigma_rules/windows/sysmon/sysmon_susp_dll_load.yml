@@ -1,0 +1,23 @@
+title: Sysmon Image Load - Suspect DLL
+id: 3c6210f1-a1b4-4b44-9002-123456789012
+status: stable
+description: Detects loading of suspicious DLLs often used by malware (e.g. LSASS dumpers, injection tools)
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 7
+    dlls:
+        ImageLoaded|contains:
+            - '\dbghelp.dll'
+            - '\dbgcore.dll'
+            - '\vaultcli.dll'
+            - '\samlib.dll'
+            - '\winspool.drv'
+    condition: selection and dlls
+level: medium
+tags:
+    - attack.credential_access
+    - attack.t1003.001

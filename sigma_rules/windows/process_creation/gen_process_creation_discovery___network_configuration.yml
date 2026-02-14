@@ -1,0 +1,20 @@
+title: Discovery - Network Configuration
+id: 0c00eeed-f44a-4d85-9a37-d491764a1963
+status: stable
+description: Generated rule for Discovery - Network Configuration
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \ipconfig.exe
+    CommandLine|contains:
+    - /all
+    - /displaydns
+  condition: selection
+level: medium
+tags:
+- attack.generated

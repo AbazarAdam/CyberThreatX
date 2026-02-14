@@ -1,0 +1,20 @@
+title: Discovery - Domain Information
+id: 3f9d1b52-7e36-4fe3-820d-d4c9d1e8975f
+status: stable
+description: Generated rule for Discovery - Domain Information
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \net.exe
+    CommandLine|contains:
+    - group "domain admins" /domain
+    - user /domain
+  condition: selection
+level: medium
+tags:
+- attack.generated

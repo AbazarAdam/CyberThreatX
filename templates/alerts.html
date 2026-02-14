@@ -116,7 +116,9 @@
                                     </span>
                                 </td>
                                 <td class="text-dark"><strong>{{ alert.score }}/10</strong></td>
-                                <td class="text-dark"><code>{{ alert.event_id }}</code></td>
+                                <td class="text-dark">
+                                    <code>{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id }}{% endif %}</code>
+                                </td>
                                 <td class="text-dark">{{ alert.computer }}</td>
                                 <td>
                                     {% if alert.mitre_technique %}

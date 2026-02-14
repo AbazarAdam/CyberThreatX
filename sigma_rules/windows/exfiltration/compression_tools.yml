@@ -1,0 +1,22 @@
+title: Data Compression Tools Usage - Stage for Exfiltration
+id: 5e6f7a8b-9c0d-1e2f-a3b4-c5d6e7f8a9b0
+status: stable
+description: Detects usage of common data compression tools (7zip, WinRAR) in suspicious locations
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - '7z.exe'
+            - 'winrar.exe'
+            - 'rar.exe'
+    flags:
+        CommandLine|contains:
+            - ' a '  # Add to archive
+            - ' -p'  # Password protect
+    condition: selection and flags
+level: low
+tags:
+    - attack.exfiltration
+    - attack.t1022

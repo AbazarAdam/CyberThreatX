@@ -1,0 +1,16 @@
+title: Sysmon - Process Injection via CreateRemoteThread
+id: cd9fbc71-7218-4810-9d4b-32bfb9c6bca6
+status: stable
+description: Generated rule for Sysmon - Process Injection via CreateRemoteThread
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 8
+  condition: selection
+level: medium
+tags:
+- attack.generated

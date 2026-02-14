@@ -1,0 +1,19 @@
+title: Remote Access Tool - TeamViewer Execution
+id: f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c
+status: stable
+description: Detects TeamViewer execution, which is often used by attackers for remote access
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '\TeamViewer.exe'
+            - '\TeamViewer_Service.exe'
+            - '\TeamViewer_Desktop.exe'
+    condition: selection
+level: medium
+tags:
+    - attack.command_and_control
+    - attack.t1219

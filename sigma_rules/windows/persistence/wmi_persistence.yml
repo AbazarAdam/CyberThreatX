@@ -1,0 +1,19 @@
+title: WMI Event Consumer Persistence
+id: a1b2c3d4-e5f6-4a8b-9c0d-123456789abc
+status: stable
+description: Detects creation of WMI event consumers which is a powerful persistence mechanism
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID:
+            - 19
+            - 20
+            - 21
+    condition: selection
+level: high
+tags:
+    - attack.persistence
+    - attack.t1546.003

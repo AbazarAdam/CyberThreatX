@@ -1,0 +1,17 @@
+title: Remote Access Tool - AnyDesk Execution
+id: 56c2c31e-1234-4a8b-8c0d-abcde1234567
+status: stable
+description: Detects AnyDesk execution, which is often used by attackers for remote access
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '\AnyDesk.exe'
+    condition: selection
+level: medium
+tags:
+    - attack.command_and_control
+    - attack.t1219

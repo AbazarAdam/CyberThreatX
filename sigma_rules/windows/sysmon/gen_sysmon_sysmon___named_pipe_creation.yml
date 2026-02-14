@@ -1,0 +1,19 @@
+title: Sysmon - Named Pipe Creation
+id: 57e6ba90-9228-4ab5-992d-ecfb64d655ad
+status: stable
+description: Generated rule for Sysmon - Named Pipe Creation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 17
+    CommandLine|contains:
+    - \pipe\psexec
+    - \pipe\lsass
+  condition: selection
+level: medium
+tags:
+- attack.generated

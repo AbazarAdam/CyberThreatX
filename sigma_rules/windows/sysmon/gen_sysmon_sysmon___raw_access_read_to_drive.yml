@@ -1,0 +1,16 @@
+title: Sysmon - Raw Access Read to Drive
+id: 8dda3dc0-a45c-4386-aa2a-6029bf26a38f
+status: stable
+description: Generated rule for Sysmon - Raw Access Read to Drive
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 9
+  condition: selection
+level: medium
+tags:
+- attack.generated

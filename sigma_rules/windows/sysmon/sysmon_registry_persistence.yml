@@ -1,0 +1,23 @@
+title: Sysmon Registry Event - Persistence via Run Keys
+id: 9a8b7c6d-5e4f-3d2c-1b0a-987654321011
+status: stable
+description: Detects persistence through modification of Windows Run registry keys
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID:
+            - 12
+            - 13
+    keys:
+        TargetObject|contains:
+            - '\Microsoft\Windows\CurrentVersion\Run'
+            - '\Microsoft\Windows\CurrentVersion\RunOnce'
+            - '\Microsoft\Windows\CurrentVersion\RunService'
+    condition: selection and keys
+level: medium
+tags:
+    - attack.persistence
+    - attack.t1547.001

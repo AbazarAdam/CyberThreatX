@@ -1,0 +1,21 @@
+title: Suspicious Network Shell Usage
+id: b55a592a-cc19-4705-9192-9f621fb150a8
+status: stable
+description: Generated rule for Suspicious Network Shell Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \netsh.exe
+    CommandLine|contains:
+    - add helper
+    - trace start
+    - int portproxy
+  condition: selection
+level: medium
+tags:
+- attack.generated

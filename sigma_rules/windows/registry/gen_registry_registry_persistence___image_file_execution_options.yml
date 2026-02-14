@@ -1,0 +1,15 @@
+title: Registry Persistence - Image File Execution Options
+id: e6e2c753-c345-44ab-9d0a-84bdeb09d4e8
+status: stable
+description: Generated rule for Registry Persistence - Image File Execution Options
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: registry
+  service: null
+detection:
+  selection: {}
+  condition: selection
+level: medium
+tags:
+- attack.generated

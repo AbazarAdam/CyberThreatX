@@ -1,0 +1,17 @@
+title: Defense Evasion - Timestamp Manipulation
+id: 20e96bf2-705a-40b8-9d72-0a600e94a927
+status: stable
+description: Generated rule for Defense Evasion - Timestamp Manipulation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \timestomp.exe
+  condition: selection
+level: medium
+tags:
+- attack.generated

@@ -1,0 +1,22 @@
+title: Clearing Windows Event Logs
+id: d2c3b4a5-b6c7-4d8e-9012-34567890f1a2
+status: stable
+description: Detects the clearing of Windows Event Logs using wevtutil or powershell
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '\wevtutil.exe'
+            - '\powershell.exe'
+        CommandLine|contains:
+            - ' cl '
+            - 'clear-log'
+            - 'clear-eventlog'
+    condition: selection
+level: high
+tags:
+    - attack.defense_evasion
+    - attack.t1070.001

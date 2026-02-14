@@ -57,7 +57,14 @@ def index():
     db.init_db(DB_PATH)
     stats = db.get_stats(DB_PATH)
     recent_alerts = db.get_alerts(limit=10, db_path=DB_PATH)
-    return render_template('index.html', stats=stats, recent_alerts=recent_alerts)
+    
+    # Add rule engine health
+    rule_health = {
+        'count': len(ACTIVE_RULES),
+        'status': 'Healthy' if len(ACTIVE_RULES) > 0 else 'No Rules Loaded'
+    }
+    
+    return render_template('index.html', stats=stats, recent_alerts=recent_alerts, rule_health=rule_health)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

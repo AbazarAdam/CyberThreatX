@@ -1,0 +1,19 @@
+title: PowerShell IEX Usage
+id: 93add017-0983-44ab-90f2-2880862d2d24
+status: stable
+description: Generated rule for PowerShell IEX Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - 'iex '
+    - Invoke-Expression
+  condition: selection
+level: medium
+tags:
+- attack.generated

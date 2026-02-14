@@ -1,0 +1,19 @@
+title: PowerShell Network Connection
+id: a1b2c3d4-e5f6-4a8b-9c0d-123456789abc
+status: stable
+description: Detects PowerShell initiating a network connection
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 3
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    condition: selection
+level: low
+tags:
+    - attack.command_and_control
+    - attack.t1059.001

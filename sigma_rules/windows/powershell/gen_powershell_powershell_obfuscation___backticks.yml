@@ -1,0 +1,18 @@
+title: PowerShell Obfuscation - Backticks
+id: 125d179d-fe4c-480e-86f3-3d12c0efad3b
+status: stable
+description: Generated rule for PowerShell Obfuscation - Backticks
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - '`p`o`w`e`r'
+  condition: selection
+level: medium
+tags:
+- attack.generated

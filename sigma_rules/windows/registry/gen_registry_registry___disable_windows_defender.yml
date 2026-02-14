@@ -1,0 +1,15 @@
+title: Registry - Disable Windows Defender
+id: 1277d707-7e2b-4480-865b-e3b280d1d418
+status: stable
+description: Generated rule for Registry - Disable Windows Defender
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: registry
+  service: null
+detection:
+  selection: {}
+  condition: selection
+level: medium
+tags:
+- attack.generated

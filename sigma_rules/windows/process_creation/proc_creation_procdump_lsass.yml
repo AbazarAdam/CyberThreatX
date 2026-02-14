@@ -1,0 +1,17 @@
+title: LSASS Memory Dumping via ProcDump
+id: d2e1a3b4-5678-4321-8901-abcdef123456
+status: stable
+description: Detects the execution of ProcDump to dump LSASS memory, a common technique for credential harvesting
+author: CyberThreatX
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith: '\procdump.exe'
+        CommandLine|contains: 'lsass'
+    condition: selection
+level: high
+tags:
+    - attack.credential_access
+    - attack.t1003.001

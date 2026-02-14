@@ -239,43 +239,76 @@ class SimpleSigmaBackend:
         return bool(re.search(pattern, str(event_value), re.IGNORECASE))
     
     def _get_field_value(self, event: Dict[str, Any], field: str) -> Any:
-        """Gets a field value from an event, supporting case-insensitive matching and nesting.
-
-        Args:
-            event: The event dictionary.
-            field: The field name (can be dot-notated).
-
-        Returns:
-            The field value or None if not found.
+        """Gets a field value from an event, supporting aliases and nesting.
         """
-        # 1. Normalize all event keys to lowercase for robust matching
-        normalized_event = {k.lower(): v for k, v in event.items()}
+        # Define common field aliases
+        ALIASES = {
+            'commandline': ['commandlinevalue', 'scriptblocktext', 'description'],
+            'image': ['processimage', 'newprocessname', 'imageloaded'],
+            'parentimage': ['parentprocessname'],
+            'user': ['subjectusername', 'targetusername'],
+            'logonid': ['subjectlogonid', 'targetlogonid'],
+            'targetfilename': ['targetfile', 'filepath'],
+            'destinationport': ['destport', 'port'],
+            'destinationhostname': ['desthost'],
+            'sourceport': ['srcport']
+        }
+
         target_field = field.lower()
+        search_fields = [target_field]
+        if target_field in ALIASES:
+            search_fields.extend(ALIASES[target_field])
 
-        # 2. Try direct access in root
-        if target_field in normalized_event:
-            return normalized_event[target_field]
+        for f in search_fields:
+            val = self._find_field_in_event(event, f)
+            if val is not None:
+                return val
+        
+        return None
 
-        # 3. Try EventData (common in Sysmon/Windows JSON)
-        event_data = event.get('EventData') or event.get('event_data') or normalized_event.get('eventdata')
+    def _find_field_in_event(self, event: Dict[str, Any], target_field: str) -> Any:
+        """Helper to find a potentially nested field in an event."""
+        # 1. Try direct access in root (case-insensitive)
+        for k, v in event.items():
+            if k.lower() == target_field:
+                return v
+
+        # 2. Try EventData / event_data (common in Sysmon/Windows JSON)
+        event_data = event.get('EventData') or event.get('event_data')
         if isinstance(event_data, dict):
-            norm_ed = {k.lower(): v for k, v in event_data.items()}
-            if target_field in norm_ed:
-                return norm_ed[target_field]
+            for k, v in event_data.items():
+                if k.lower() == target_field:
+                    return v
 
-        # 4. Try nested dot-notation access
+        # 3. Try nested dot-notation access
         if '.' in target_field:
             parts = target_field.split('.')
             current = event
             for part in parts:
                 if not isinstance(current, dict):
-                    return None
+                    break
                 
                 # Case-insensitive part match
-                part_match = next((v for k, v in current.items() if k.lower() == part), None)
-                if part_match is None:
-                    return None
-                current = part_match
+                match_found = False
+                for k, v in current.items():
+                    if k.lower() == part:
+                        current = v
+                        match_found = True
+                        break
+                
+                if not match_found:
+                    # Try EventData if at root and first part didn't match
+                    if current == event and (event.get('EventData') or event.get('event_data')):
+                        ed = event.get('EventData') or event.get('event_data')
+                        if isinstance(ed, dict):
+                            for k, v in ed.items():
+                                if k.lower() == part:
+                                    current = v
+                                    match_found = True
+                                    break
+                    
+                    if not match_found:
+                        return None
             return current
 
         return None

@@ -1,0 +1,20 @@
+title: Lateral Movement - WMIC Remote Execution
+id: a676dd2d-2173-432f-98a3-68ea554c9e60
+status: stable
+description: Generated rule for Lateral Movement - WMIC Remote Execution
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \wmic.exe
+    CommandLine|contains:
+    - '/node:'
+    - process call create
+  condition: selection
+level: medium
+tags:
+- attack.generated

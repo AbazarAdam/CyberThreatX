@@ -1,0 +1,17 @@
+title: Sysmon CreateRemoteThread - Process Injection
+id: d2c347b1-91a3-4566-a677-bd8857412351
+status: stable
+description: Detects CreateRemoteThread API call which is often used for process injection
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 8
+    condition: selection
+level: high
+tags:
+    - attack.privilege_escalation
+    - attack.defense_evasion
+    - attack.t1055

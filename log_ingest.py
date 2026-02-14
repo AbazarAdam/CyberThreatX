@@ -76,10 +76,19 @@ class LogIngestor:
             event_id = event_id_raw.get('#text')
         else:
             event_id = event_id_raw
+
+        # Standardize EventID to integer or -1 if missing/invalid
+        try:
+            if event_id is not None:
+                event_id = int(event_id)
+            else:
+                event_id = -1
+        except (ValueError, TypeError):
+            event_id = -1
             
         normalized = {
             'timestamp': raw_event.get('timestamp') or raw_event.get('TimeCreated') or datetime.now().isoformat(),
-            'event_id': event_id if event_id is not None else "N/A",
+            'event_id': event_id,
             'computer': raw_event.get('computer') or raw_event.get('Computer') or 'Unknown',
             'provider': raw_event.get('provider') or raw_event.get('ProviderName') or source_type,
             'event_data': raw_event.get('event_data') or raw_event,
@@ -88,35 +97,44 @@ class LogIngestor:
         return normalized
 
 def start_syslog_server(host: str, port: int, callback):
-    """Starts a UDP syslog server in a background thread.
+    """Starts a UDP syslog server in a background thread."""
+    
+    server_state = {"running": True}
 
-    Args:
-        host: Hostname or IP to bind to.
-        port: Port to listen on.
-        callback: Function to call for each received event.
-
-    Returns:
-        The threading.Thread object running the server.
-    """
     def listen():
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind((host, port))
-        logger.info(f"[*] Syslog server listening on {host}:{port}")
-        
-        while True:
-            data, addr = sock.recvfrom(4096)
-            try:
-                msg = data.decode('utf-8')
-                # Simple syslog parser (RFC3164/5424)
-                event = {
-                    'timestamp': datetime.now().isoformat(),
-                    'source_ip': addr[0],
-                    'message': msg,
-                    'provider': 'syslog'
-                }
-                callback(event)
-            except Exception as e:
-                logger.error(f"Error processing syslog from {addr}: {e}")
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.bind((host, port))
+            logger.info(f"[*] Syslog server listening on {host}:{port}")
+            
+            while server_state["running"]:
+                try:
+                    sock.settimeout(1.0)
+                    data, addr = sock.recvfrom(4096)
+                    msg = data.decode('utf-8')
+                    event = {
+                        'timestamp': datetime.now().isoformat(),
+                        'source_ip': addr[0],
+                        'message': msg,
+                        'provider': 'syslog'
+                    }
+                    callback(event)
+                except socket.timeout:
+                    continue
+                except Exception as e:
+                    logger.error(f"Error processing syslog from {addr}: {e}")
+        except OSError as e:
+            if e.errno == 10048:
+                logger.warning(f"[-] Syslog binding failed on {host}:{port}. Port is already in use. Syslog disabled.")
+            else:
+                logger.error(f"[-] Syslog server error: {e}")
+            server_state["running"] = False
+        except Exception as e:
+            logger.error(f"[-] Unexpected syslog server error: {e}")
+            server_state["running"] = False
+        finally:
+            if 'sock' in locals():
+                sock.close()
 
     thread = threading.Thread(target=listen, daemon=True)
     thread.start()

@@ -1,0 +1,30 @@
+title: Sysmon Process Creation - Suspect Command Line
+id: a823e201-901b-4682-9011-e8d195a6ec31
+status: stable
+description: Detects suspicious command line arguments often used in attacks
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 1
+    keywords:
+        CommandLine|contains:
+            - ' -enc '
+            - ' -encodedcommand '
+            - ' -w hidden '
+            - ' -windowstyle hidden '
+            - ' -nop '
+            - ' -noprofile '
+            - ' downloadstring '
+            - ' downloadfile '
+            - ' IEX '
+            - ' invoke-expression '
+            - ' /e:vbscript '
+            - ' /e:jscript '
+    condition: selection and keywords
+level: high
+tags:
+    - attack.execution
+    - attack.t1059.001

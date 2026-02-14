@@ -1,0 +1,19 @@
+title: PowerShell Download String
+id: 0505f2fe-e0ec-4d72-8281-3c57bd968ff8
+status: stable
+description: Generated rule for PowerShell Download String
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - DownloadString
+    - DownloadFile
+  condition: selection
+level: medium
+tags:
+- attack.generated

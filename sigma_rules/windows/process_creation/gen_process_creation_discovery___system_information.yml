@@ -1,0 +1,17 @@
+title: Discovery - System Information
+id: fac76e19-26f5-4719-92a3-885a48257302
+status: stable
+description: Generated rule for Discovery - System Information
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \systeminfo.exe
+  condition: selection
+level: medium
+tags:
+- attack.generated

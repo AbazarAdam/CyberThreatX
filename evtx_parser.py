@@ -45,10 +45,13 @@ def parse_evtx(file_path: str) -> Generator[Dict[str, Any], None, None]:
                     event_id_raw = system.get('EventID')
                     if isinstance(event_id_raw, dict):
                         event_id = event_id_raw.get('#text')
-                        if event_id is not None:
-                            event_id = int(event_id)
                     else:
-                        event_id = int(event_id_raw) if event_id_raw is not None else None
+                        event_id = event_id_raw
+                    
+                    try:
+                        event_id = int(event_id) if event_id is not None else -1
+                    except (ValueError, TypeError):
+                        event_id = -1
                     
                     # Extract TimeCreated
                     time_created_raw = system.get('TimeCreated', {})

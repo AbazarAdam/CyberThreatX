@@ -299,13 +299,27 @@ Examples:
     args = parser.parse_args()
     
     try:
-        process_evtx_file(
-            evtx_file=args.evtx_file,
-            db_path=args.db,
-            json_output=args.output,
-            rules_folder=args.rules_folder,
-            show_progress=True
-        )
+        file_path = Path(args.evtx_file)
+        if file_path.suffix.lower() == '.evtx':
+            process_evtx_file(
+                evtx_file=args.evtx_file,
+                db_path=args.db,
+                json_output=args.output,
+                rules_folder=args.rules_folder,
+                show_progress=True
+            )
+        elif file_path.suffix.lower() in ['.json', '.csv']:
+            file_type = file_path.suffix.lower()[1:]
+            process_generic_log_file(
+                file_path=args.evtx_file,
+                db_path=args.db,
+                rules_folder=args.rules_folder,
+                file_type=file_type
+            )
+            logger.info(f"[✓] Processed generic {file_type} log: {args.evtx_file}")
+        else:
+            logger.error(f"Unsupported file extension: {file_path.suffix}")
+            sys.exit(1)
     except KeyboardInterrupt:
         sys.exit(130)
     except Exception:

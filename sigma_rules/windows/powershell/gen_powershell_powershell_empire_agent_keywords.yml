@@ -1,0 +1,19 @@
+title: PowerShell Empire Agent Keywords
+id: 02c628b2-be68-45db-ba70-7cb01a91e595
+status: stable
+description: Generated rule for PowerShell Empire Agent Keywords
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - Invoke-Empire
+    - Start-Empire
+  condition: selection
+level: medium
+tags:
+- attack.generated

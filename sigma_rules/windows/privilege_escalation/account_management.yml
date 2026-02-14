@@ -1,0 +1,21 @@
+title: Critical Account Management Events
+id: d2c3b4a5-e6f7-4a8b-c9d0-1234567890ab
+status: stable
+description: Detects critical account management actions like password resets or user deletions
+author: CyberThreatX
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID:
+            - 4723  # User changed password
+            - 4724  # Attempt to reset password
+            - 4726  # User deleted
+            - 4725  # User disabled
+    condition: selection
+level: medium
+tags:
+    - attack.persistence
+    - attack.impact
+    - attack.t1098

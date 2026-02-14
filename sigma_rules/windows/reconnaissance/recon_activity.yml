@@ -1,0 +1,26 @@
+title: Reconnaissance Command Line Activity
+id: 7e9f6a2b-8a1c-4b4d-9012-345678901234
+status: stable
+description: Detects execution of common reconnaissance commands used by attackers after initial access
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'whoami'
+            - 'net user'
+            - 'net localgroup'
+            - 'net share'
+            - 'net view'
+            - 'netstat -an'
+            - 'ipconfig /all'
+            - 'systeminfo'
+            - 'tasklist'
+            - 'quser'
+    condition: selection
+level: low
+tags:
+    - attack.discovery
+    - attack.t1087
+    - attack.t1082

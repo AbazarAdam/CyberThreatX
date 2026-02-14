@@ -1,0 +1,21 @@
+title: LOLBAS - Mshta Execution
+id: 7506094b-7337-4334-a547-a665353c1f5e
+status: stable
+description: Generated rule for LOLBAS - Mshta Execution
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \mshta.exe
+    CommandLine|contains:
+    - http
+    - vbscript
+    - javascript
+  condition: selection
+level: medium
+tags:
+- attack.generated

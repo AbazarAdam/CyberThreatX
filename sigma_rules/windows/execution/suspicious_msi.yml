@@ -1,0 +1,23 @@
+title: Suspicious MSI Installer Execution
+id: f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c
+status: stable
+description: Detects execution of MSI installers from suspicious locations or with non-standard extensions
+author: CyberThreatX
+logsource:
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - '.tmp'
+            - 'C:\Windows\Installer\'
+            - 'C:\Users\Public\'
+            - 'C:\ProgramData\'
+    msiexec:
+        CommandLine|contains:
+            - 'msiexec'
+            - 'msi'
+    condition: selection and msiexec
+level: high
+tags:
+    - attack.execution
+    - attack.t1218.007

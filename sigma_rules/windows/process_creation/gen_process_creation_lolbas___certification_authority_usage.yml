@@ -1,0 +1,21 @@
+title: LOLBAS - Certification Authority Usage
+id: b82db841-2d25-4a19-ba95-f10b2bdaf099
+status: stable
+description: Generated rule for LOLBAS - Certification Authority Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \certutil.exe
+    CommandLine|contains:
+    - -urlcache
+    - -split
+    - -decode
+  condition: selection
+level: medium
+tags:
+- attack.generated

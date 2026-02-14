@@ -1,0 +1,20 @@
+title: Execution - Regasm/Regsvcs Usage
+id: c3cd39b5-7f8a-4257-ab4d-192803afd7f7
+status: stable
+description: Generated rule for Execution - Regasm/Regsvcs Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \regasm.exe
+    CommandLine|contains:
+    - /U
+    - /codebase
+  condition: selection
+level: medium
+tags:
+- attack.generated

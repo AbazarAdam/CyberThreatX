@@ -23,16 +23,14 @@ logger = logging.getLogger(__name__)
 @contextmanager
 def get_connection(db_path: str = config.DB_PATH):
     """Provides a managed database connection with WAL mode and row factory.
-
-    Args:
-        db_path: Path to the SQLite database file.
-
-    Yields:
-        A sqlite3.Connection object.
+    
+    The connection is configured with a 30s timeout and WAL mode for 
+    concurrency.
     """
     conn = sqlite3.connect(db_path, timeout=30)
     conn.execute("PRAGMA journal_mode=WAL;")
-    conn.row_factory = sqlite3.Row  # Enable column access by name
+    conn.commit()  # Ensure WAL is active
+    conn.row_factory = sqlite3.Row
     try:
         yield conn
         conn.commit()
@@ -205,7 +203,7 @@ def insert_alert(alert_dict: Dict[str, Any], db_path: str = config.DB_PATH) -> i
             alert_dict.get('rule_name', ''),
             alert_dict.get('severity', ''),
             alert_dict.get('score', 0),
-            alert_dict.get('event_id', 0),
+            alert_dict.get('event_id', -1), # Default to -1 (N/A)
             alert_dict.get('computer', ''),
             alert_dict.get('description', ''),
             alert_dict.get('mitre_technique', ''),
@@ -453,20 +451,32 @@ def verify_user(username: str, password_raw: str, db_path: str = DB_FILE) -> Opt
 
 # --- Alert Triage ---
 
-def update_alert_status(alert_id: int, status: str, user_id: int = None, db_path: str = DB_FILE) -> bool:
+def update_alert_status(alert_id: int, status: str, user_id: int = None, db_path: str = DB_FILE, conn=None) -> bool:
     """Update alert status and log action."""
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE alerts SET status = ? WHERE id = ?", (status, alert_id))
+        log_action(user_id, 'update_status', 'alert', alert_id, f"Changed status to {status}", db_path, conn=conn)
+        return True
+    
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE alerts SET status = ? WHERE id = ?", (status, alert_id))
-        log_action(user_id, 'update_status', 'alert', alert_id, f"Changed status to {status}", db_path)
+        log_action(user_id, 'update_status', 'alert', alert_id, f"Changed status to {status}", db_path, conn=conn)
         return True
 
-def assign_alert(alert_id: int, user_id: int, assigner_id: int = None, db_path: str = DB_FILE) -> bool:
+def assign_alert(alert_id: int, user_id: int, assigner_id: int = None, db_path: str = DB_FILE, conn=None) -> bool:
     """Assign alert to a user."""
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE alerts SET assigned_to = ? WHERE id = ?", (user_id, alert_id))
+        log_action(assigner_id, 'assign_alert', 'alert', alert_id, f"Assigned to user {user_id}", db_path, conn=conn)
+        return True
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("UPDATE alerts SET assigned_to = ? WHERE id = ?", (user_id, alert_id))
-        log_action(assigner_id, 'assign_alert', 'alert', alert_id, f"Assigned to user {user_id}", db_path)
+        log_action(assigner_id, 'assign_alert', 'alert', alert_id, f"Assigned to user {user_id}", db_path, conn=conn)
         return True
 
 def add_alert_comment(alert_id: int, user_id: int, comment: str, db_path: str = DB_FILE) -> int:
@@ -548,8 +558,16 @@ def update_correlation_status(corr_id: int, status: str, db_path: str = DB_FILE)
 
 # --- Audit & Logging ---
 
-def log_action(user_id: int, action: str, target_type: str = None, target_id: int = None, details: str = None, db_path: str = DB_FILE):
+def log_action(user_id: int, action: str, target_type: str = None, target_id: int = None, details: str = None, db_path: str = DB_FILE, conn=None):
     """Log system actions for auditing."""
+    if conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO audit_log (user_id, action, target_type, target_id, details)
+            VALUES (?, ?, ?, ?, ?)
+        """, (user_id, action, target_type, target_id, details))
+        return
+
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         cursor.execute("""

@@ -1,0 +1,20 @@
+title: Persistence - New User Creation
+id: d78bcfa7-e399-4a4d-aee7-b5c5d0f4d6f8
+status: stable
+description: Generated rule for Persistence - New User Creation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \net.exe
+    CommandLine|contains:
+    - user /add
+    - localgroup administrators /add
+  condition: selection
+level: medium
+tags:
+- attack.generated

@@ -1,0 +1,20 @@
+title: Execution - InstallUtil Usage
+id: cd375cc0-4e26-481f-a2ee-77a56d534a14
+status: stable
+description: Generated rule for Execution - InstallUtil Usage
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \installutil.exe
+    CommandLine|contains:
+    - /logfile=
+    - /u
+  condition: selection
+level: medium
+tags:
+- attack.generated

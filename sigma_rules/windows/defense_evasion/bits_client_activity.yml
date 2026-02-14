@@ -1,0 +1,21 @@
+title: Microsoft BITS Client Activity
+id: b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e
+status: stable
+description: Detects BITS client activities like job creation and transfer which can be used by malware
+author: CyberThreatX
+logsource:
+    product: windows
+    service: bits-client
+detection:
+    selection:
+        EventID:
+            - 3   # Job creation
+            - 59  # Job created
+            - 60  # Job transferred
+            - 4   # Job finished
+    condition: selection
+level: medium
+tags:
+    - attack.defense_evasion
+    - attack.persistence
+    - attack.t1197

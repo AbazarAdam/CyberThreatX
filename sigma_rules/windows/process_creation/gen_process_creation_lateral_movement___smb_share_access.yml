@@ -1,0 +1,20 @@
+title: Lateral Movement - SMB Share Access
+id: 933a96eb-8069-44f0-829d-ee4d0dc722b6
+status: stable
+description: Generated rule for Lateral Movement - SMB Share Access
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \net.exe
+    CommandLine|contains:
+    - use \\
+    - share
+  condition: selection
+level: medium
+tags:
+- attack.generated

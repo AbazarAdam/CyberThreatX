@@ -1,0 +1,15 @@
+title: Registry - New Service Creation
+id: 4669f26e-e0ce-4e86-91fd-f334c523abf5
+status: stable
+description: Generated rule for Registry - New Service Creation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: registry
+  service: null
+detection:
+  selection: {}
+  condition: selection
+level: medium
+tags:
+- attack.generated

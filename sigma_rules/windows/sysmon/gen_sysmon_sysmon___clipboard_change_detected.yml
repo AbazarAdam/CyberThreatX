@@ -1,0 +1,16 @@
+title: Sysmon - Clipboard Change Detected
+id: 60cec86d-6faf-49d6-8f3e-6126f7c99fa5
+status: stable
+description: Generated rule for Sysmon - Clipboard Change Detected
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+  condition: selection
+level: medium
+tags:
+- attack.generated

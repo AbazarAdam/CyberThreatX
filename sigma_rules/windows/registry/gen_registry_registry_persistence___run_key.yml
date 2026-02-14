@@ -1,0 +1,15 @@
+title: Registry Persistence - Run Key
+id: 71d37433-2c02-4992-8c51-5a8f04d2494c
+status: stable
+description: Generated rule for Registry Persistence - Run Key
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: registry
+  service: null
+detection:
+  selection: {}
+  condition: selection
+level: medium
+tags:
+- attack.generated

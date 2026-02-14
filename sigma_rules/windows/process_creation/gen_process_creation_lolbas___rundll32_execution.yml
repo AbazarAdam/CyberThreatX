@@ -1,0 +1,20 @@
+title: LOLBAS - Rundll32 Execution
+id: 6ca76447-0dcc-49de-9b82-c1d33d886850
+status: stable
+description: Generated rule for LOLBAS - Rundll32 Execution
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \rundll32.exe
+    CommandLine|contains:
+    - 'javascript:'
+    - mshtml,RunHTMLApplication
+  condition: selection
+level: medium
+tags:
+- attack.generated

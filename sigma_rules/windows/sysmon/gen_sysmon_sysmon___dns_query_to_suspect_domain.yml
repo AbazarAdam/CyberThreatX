@@ -1,0 +1,20 @@
+title: Sysmon - DNS Query to Suspect Domain
+id: 342a6e90-523e-45dc-941a-b01242543d94
+status: stable
+description: Generated rule for Sysmon - DNS Query to Suspect Domain
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: null
+  service: sysmon
+detection:
+  selection:
+    EventID: 1
+    CommandLine|contains:
+    - 'QueryName: .top'
+    - 'QueryName: .xyz'
+    - 'QueryName: .pw'
+  condition: selection
+level: medium
+tags:
+- attack.generated

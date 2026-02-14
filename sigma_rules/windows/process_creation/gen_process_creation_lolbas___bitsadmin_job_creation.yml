@@ -1,0 +1,21 @@
+title: LOLBAS - BITSAdmin Job Creation
+id: c1f3e76e-52dd-4db7-8b41-f8ce08cdfd1c
+status: stable
+description: Generated rule for LOLBAS - BITSAdmin Job Creation
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \bitsadmin.exe
+    CommandLine|contains:
+    - /create
+    - /transfer
+    - /addfile
+  condition: selection
+level: medium
+tags:
+- attack.generated

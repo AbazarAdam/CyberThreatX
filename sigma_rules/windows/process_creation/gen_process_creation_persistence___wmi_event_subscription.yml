@@ -1,0 +1,21 @@
+title: Persistence - WMI Event Subscription
+id: 864bd5b2-415d-434f-9b51-62261b38805c
+status: stable
+description: Generated rule for Persistence - WMI Event Subscription
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: process_creation
+  service: null
+detection:
+  selection:
+    Image|endswith:
+    - \wmic.exe
+    CommandLine|contains:
+    - /namespace:\\root\subscription
+    - EventFilter
+    - EventConsumer
+  condition: selection
+level: medium
+tags:
+- attack.generated

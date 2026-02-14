@@ -1,0 +1,23 @@
+title: Cobalt Strike Default Pipe Names
+id: a8b7c6d5-e4f3-d2c1-b0a9-987654321012
+status: stable
+description: Detects default named pipes used by Cobalt Strike beacons
+author: CyberThreatX
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 17  # Pipe Created
+    pipes:
+        PipeName|contains:
+            - '\msagent_'
+            - '\msse-'
+            - '\postex_ssh_'
+            - '\postex_'
+            - '\status_'
+    condition: selection and pipes
+level: critical
+tags:
+    - attack.command_and_control
+    - attack.t1571

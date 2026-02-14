@@ -1,0 +1,19 @@
+title: PowerShell Clipboard Access
+id: 9ba3b405-22cd-4be3-bd45-715b2976050c
+status: stable
+description: Generated rule for PowerShell Clipboard Access
+author: CyberThreatX Generator
+logsource:
+  product: windows
+  category: powershell
+  service: null
+detection:
+  selection:
+    CommandLine|contains:
+    - powershell.exe
+    - Get-Clipboard
+    - Set-Clipboard
+  condition: selection
+level: medium
+tags:
+- attack.generated
