@@ -123,5 +123,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 👤 Author
 
-**[Your Name]**
+**Abazar Adam**
 - GitHub: [@AbazarAdam](https://github.com/AbazarAdam)
