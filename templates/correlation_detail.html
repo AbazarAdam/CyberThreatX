@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Incident #{{ correlation.id }} - CyberThreatX{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/correlations">Incidents</a></li>
+                <li class="breadcrumb-item active">Incident #{{ correlation.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-3">
+            <i class="bi bi-diagram-3"></i> Security Incident Details
+            <span class="badge severity-badge severity-{{ correlation.severity }} ms-2">
+                {{ correlation.severity.upper() }}
+            </span>
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary bg-opacity-25">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Incident Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm border-0">
+                            <tbody>
+                                <tr>
+                                    <th class="border-0">Incident ID</th>
+                                    <td class="border-0"><strong>#{{ correlation.id }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th class="border-0">Type</th>
+                                    <td class="border-0"><strong>{{ correlation.correlation_name }}</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="border-0">Status</th>
+                                    <td class="border-0"><span class="badge bg-danger">{{ correlation.status.upper()
+                                            }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm border-0">
+                            <tbody>
+                                <tr>
+                                    <th class="border-0">Detected at</th>
+                                    <td class="border-0">{{ correlation.end_time }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="border-0">Total Alerts</th>
+                                    <td class="border-0"><span class="badge bg-info">{{ alerts|length }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <p class="mb-0"><strong>Description:</strong><br>{{ correlation.description }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Contributing Alerts</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Rule</th>
+                                <th>Computer</th>
+                                <th>Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td><span class="badge severity-badge severity-{{ alert.severity }}">{{
+                                        alert.severity[0]|upper }}</span></td>
+                                <td class="text-dark"><strong>{{ alert.rule_name }}</strong></td>
+                                <td class="text-dark">{{ alert.computer }}</td>
+                                <td class="text-dark"><small>{{ alert.timestamp }}</small></td>
+                                <td><a href="{{ url_for('alert_detail', alert_id=alert.id) }}"
+                                        class="btn btn-xs btn-outline-info">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-warning bg-opacity-25 text-warning">
+                <h5 class="mb-0 text-dark"><i class="bi bi-shield-shaded me-2"></i>Incident Triage</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">Grouped incidents should be handled as a single case.</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning btn-sm">Assign to Me</button>
+                    <button class="btn btn-outline-warning btn-sm">Close Incident</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

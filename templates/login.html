@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Login - CyberThreatX{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card bg-dark border-secondary mt-5">
+            <div class="card-header border-secondary text-center text-white">
+                <h3 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Login</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-white">Username</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="username"
+                            name="username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-white">Password</label>
+                        <input type="password" class="form-control bg-dark text-white border-secondary" id="password"
+                            name="password" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-secondary text-center text-white">
+                <small>Default credentials: admin / changeme</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

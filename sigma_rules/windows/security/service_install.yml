@@ -1,0 +1,23 @@
+title: Service Installation
+id: 7e9f6a2b-8d4c-4f1e-a5b3-9876543210cd
+status: stable
+description: Detects service installation which could indicate persistence mechanisms or malware installation
+author: CyberThreatX
+date: 2024/01/01
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4697
+    condition: selection
+falsepositives:
+    - Legitimate software installations
+    - System updates
+level: high
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1543.003

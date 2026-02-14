@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts - CyberThreatX{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-exclamation-triangle"></i> Threat Alerts
+        </h1>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-funnel"></i> Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="/alerts" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="severity" class="form-label">Severity</label>
+                        <select name="severity" id="severity" class="form-select">
+                            <option value="">All</option>
+                            <option value="high" {% if filters.severity=='high' %}selected{% endif %}>High</option>
+                            <option value="medium" {% if filters.severity=='medium' %}selected{% endif %}>Medium
+                            </option>
+                            <option value="low" {% if filters.severity=='low' %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="rule_name" class="form-label">Rule</label>
+                        <select name="rule_name" id="rule_name" class="form-select">
+                            <option value="">All Rules</option>
+                            {% for rule in available_rules %}
+                            <option value="{{ rule }}" {% if filters.rule_name==rule %}selected{% endif %}>{{ rule }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control"
+                            value="{{ filters.start_date or '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control"
+                            value="{{ filters.end_date or '' }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Apply
+                        </button>
+                    </div>
+                </form>
+                {% if filters.severity or filters.rule_name or filters.start_date or filters.end_date %}
+                <div class="mt-3">
+                    <a href="/alerts" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Clear Filters
+                    </a>
+                    <a href="/export/alerts?{{ request.query_string.decode() }}" class="btn btn-sm btn-success">
+                        <i class="bi bi-download"></i> Export JSON
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Summary -->
+<div class="row mb-3">
+    <div class="col-12">
+        <p class="text-muted">
+            Showing {{ alerts|length }} of {{ total_count }} alerts
+            {% if filters.severity or filters.rule_name or filters.start_date or filters.end_date %}
+            (filtered)
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- Alerts Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if alerts %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Timestamp</th>
+                                <th>Rule</th>
+                                <th>Severity</th>
+                                <th>Score</th>
+                                <th>Event ID</th>
+                                <th>Computer</th>
+                                <th>MITRE</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td class="text-dark"><strong>#{{ alert.id }}</strong></td>
+                                <td class="text-dark"><small>{{ alert.timestamp[:19] }}</small></td>
+                                <td class="text-dark"><strong>{{ alert.rule_name }}</strong></td>
+                                <td>
+                                    <span class="badge severity-badge severity-{{ alert.severity }}">
+                                        {{ alert.severity.upper() }}
+                                    </span>
+                                </td>
+                                <td class="text-dark"><strong>{{ alert.score }}/10</strong></td>
+                                <td class="text-dark"><code>{{ alert.event_id }}</code></td>
+                                <td class="text-dark">{{ alert.computer }}</td>
+                                <td>
+                                    {% if alert.mitre_technique %}
+                                    <a href="https://attack.mitre.org/techniques/{{ alert.mitre_technique }}/"
+                                        target="_blank" class="badge bg-info text-decoration-none">
+                                        {{ alert.mitre_technique }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/alert/{{ alert.id }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                <nav aria-label="Alert pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page > 1 %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="/alerts?page={{ page - 1 }}{% if filters.severity %}&severity={{ filters.severity }}{% endif %}{% if filters.rule_name %}&rule_name={{ filters.rule_name }}{% endif %}{% if filters.start_date %}&start_date={{ filters.start_date }}{% endif %}{% if filters.end_date %}&end_date={{ filters.end_date }}{% endif %}">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                        {% elif p <= 3 or p> total_pages - 3 or (p >= page - 1 and p <= page + 1) %} <li
+                                class="page-item">
+                                <a class="page-link"
+                                    href="/alerts?page={{ p }}{% if filters.severity %}&severity={{ filters.severity }}{% endif %}{% if filters.rule_name %}&rule_name={{ filters.rule_name }}{% endif %}{% if filters.start_date %}&start_date={{ filters.start_date }}{% endif %}{% if filters.end_date %}&end_date={{ filters.end_date }}{% endif %}">{{
+                                    p }}</a>
+                                </li>
+                                {% elif p == 4 or p == total_pages - 3 %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if page < total_pages %} <li class="page-item">
+                                    <a class="page-link"
+                                        href="/alerts?page={{ page + 1 }}{% if filters.severity %}&severity={{ filters.severity }}{% endif %}{% if filters.rule_name %}&rule_name={{ filters.rule_name }}{% endif %}{% if filters.start_date %}&start_date={{ filters.start_date }}{% endif %}{% if filters.end_date %}&end_date={{ filters.end_date }}{% endif %}">Next</a>
+                                    </li>
+                                    {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <div class="alert alert-warning text-center">
+                    <i class="bi bi-exclamation-circle"></i> No alerts found matching your filters.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

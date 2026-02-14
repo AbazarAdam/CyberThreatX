@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Alert #{{ alert.id }} - CyberThreatX{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/alerts">Alerts</a></li>
+                <li class="breadcrumb-item active">Alert #{{ alert.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-3">
+            <i class="bi bi-file-earmark-text"></i> Alert Details
+            <span class="badge severity-badge severity-{{ alert.severity }} ms-2">
+                {{ alert.severity.upper() }}
+            </span>
+        </h1>
+    </div>
+</div>
+
+<!-- Alert Summary -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary bg-opacity-25">
+                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Alert Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 40%;">Alert ID</th>
+                                    <td><strong>#{{ alert.id }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Rule Name</th>
+                                    <td>{{ alert.rule_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>
+                                        {% if alert.status == 'new' %}
+                                        <span class="badge bg-danger">New</span>
+                                        {% elif alert.status == 'in_progress' %}
+                                        <span class="badge bg-warning text-dark">In Progress</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Closed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Severity</th>
+                                    <td>
+                                        <span class="badge severity-badge severity-{{ alert.severity }}">
+                                            {{ alert.severity.upper() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Threat Score</th>
+                                    <td><strong>{{ alert.score }}/10</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>MITRE ATT&CK</th>
+                                    <td>
+                                        {% if alert.mitre_technique %}
+                                        <span class="badge bg-primary">{{ alert.mitre_technique }}</span>
+                                        {% else %}
+                                        <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-success bg-opacity-25">
+                        <h5 class="mb-0"><i class="bi bi-pc-display me-2"></i>Event Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th style="width: 40%;">Event ID</th>
+                                    <td><code>{{ alert.event_id }}</code></td>
+                                </tr>
+                                <tr>
+                                    <th>Computer</th>
+                                    <td><strong>{{ alert.computer }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Event Timestamp</th>
+                                    <td>{{ alert.timestamp }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Alert Created</th>
+                                    <td>{{ alert.created_at }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Threat Intelligence -->
+        {% if threat_intel %}
+        <div class="card mb-4">
+            <div class="card-header bg-danger bg-opacity-10 text-danger">
+                <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>External Intelligence Findings</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Indicator</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Severity/Pulses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for intel in threat_intel %}
+                            <tr>
+                                <td><code>{{ intel.value }}</code></td>
+                                <td><span class="badge bg-secondary">{{ intel.type.upper() }}</span></td>
+                                <td>{{ intel.source }}</td>
+                                <td>
+                                    <span class="badge bg-danger">{{ intel.pulses }} Pulses</span>
+                                </td>
+                                <td>
+                                    {% if intel.type == 'ip' %}
+                                    <a href="https://otx.alienvault.com/indicator/ip/{{ intel.value }}" target="_blank"
+                                        class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                    {% elif intel.type == 'domain' %}
+                                    <a href="https://otx.alienvault.com/indicator/domain/{{ intel.value }}"
+                                        target="_blank" class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                    {% elif intel.type == 'hash' %}
+                                    <a href="https://otx.alienvault.com/indicator/file/{{ intel.value }}"
+                                        target="_blank" class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Raw Event Data -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-code-square me-2"></i>Raw Event Data</h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-light p-3 rounded mb-0"
+                    style="max-height: 400px; overflow: auto;"><code class="text-info">{{ raw_event_json }}</code></pre>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Comments</h5>
+            </div>
+            <div class="card-body">
+                {% for comment in comments %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">{{ comment.username }}</span>
+                        <small class="text-muted">{{ comment.created_at }}</small>
+                    </div>
+                    <div class="mt-1">{{ comment.comment }}</div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-3">No comments yet.</p>
+                {% endfor %}
+
+                <form action="{{ url_for('alert_triage', alert_id=alert.id) }}" method="POST" class="mt-4">
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Add Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"
+                            placeholder="Add technical details or response actions..."></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Triage Sidebar -->
+    <div class="col-lg-4">
+        <div class="card mb-4 sticky-top" style="top: 80px; z-index: 1000;">
+            <div class="card-header bg-warning bg-opacity-25">
+                <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Alert Triage</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('alert_triage', alert_id=alert.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Change Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="new" {% if alert.status=='new' %}selected{% endif %}>New</option>
+                            <option value="in_progress" {% if alert.status=='in_progress' %}selected{% endif %}>In
+                                Progress</option>
+                            <option value="closed" {% if alert.status=='closed' %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="assigned_to" class="form-label">Assign Analyst</label>
+                        <select class="form-select" id="assigned_to" name="assigned_to">
+                            <option value="">-- Unassigned --</option>
+                            <option value="1" {% if alert.assigned_to==1 %}selected{% endif %}>Admin</option>
+                            <!-- More users would be dynamically loaded here -->
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning">Update Triage</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted d-block">Assigned to: <strong>{{ current_user.username if alert.assigned_to ==
+                        current_user.id else 'None' }}</strong></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row">
+    <div class="col-12">
+        <a href="/alerts" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Alerts
+        </a>
+        <a href="/export/alert/{{ alert.id }}" class="btn btn-primary">
+            <i class="bi bi-download"></i> Export as JSON
+        </a>
+    </div>
+</div>
+{% endblock %}

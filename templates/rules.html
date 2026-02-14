@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Sigma Rules - CyberThreatX Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-0"><i class="bi bi-shield-check me-2"></i>Sigma Rules</h2>
+        <p class="text-muted">Total Active Rules: <span class="badge bg-primary">{{ rules|length }}</span></p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Severity</th>
+                                <th>Category</th>
+                                <th>MITRE ATT&CK</th>
+                                <th>Author</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in rules %}
+                            <tr>
+                                <td>
+                                    <span class="fw-bold text-dark">{{ rule.title }}</span>
+                                    <br>
+                                    <small class="text-dark fw-bold">{{ rule.id[:8] }}...</small>
+                                </td>
+                                <td>
+                                    {% if rule.level == 'critical' %}
+                                    <span class="badge bg-danger">Critical</span>
+                                    {% elif rule.level == 'high' %}
+                                    <span class="badge bg-warning text-dark">High</span>
+                                    {% elif rule.level == 'medium' %}
+                                    <span class="badge bg-info text-dark">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{
+                                        rule.logsource.product|capitalize or 'Any' }}/{{
+                                        rule.logsource.service|capitalize or 'Any' }}</span>
+                                </td>
+                                <td>
+                                    {% for tech in rule.mitre_techniques %}
+                                    <span class="badge bg-primary">{{ tech }}</span>
+                                    {% else %}
+                                    <span class="text-muted">None</span>
+                                    {% endfor %}
+                                </td>
+                                <td class="text-dark">{{ rule.author }}</td>
+                                <td>
+                                    <span
+                                        class="badge {% if rule.status == 'stable' %}bg-success{% else %}bg-secondary{% endif %}">{{
+                                        rule.status|capitalize }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

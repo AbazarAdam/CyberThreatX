@@ -1,0 +1,22 @@
+title: PowerShell Script Block Logging
+id: f9e8d7c6-b5a4-3210-9876-543210fedcba
+status: stable
+description: Detects PowerShell script block execution which could indicate malicious PowerShell activity
+author: CyberThreatX
+date: 2024/01/01
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+logsource:
+    product: windows
+    service: powershell
+detection:
+    selection:
+        EventID: 4104
+    condition: selection
+falsepositives:
+    - Legitimate PowerShell scripts
+    - Administrative automation
+level: medium
+tags:
+    - attack.execution
+    - attack.t1059.001
