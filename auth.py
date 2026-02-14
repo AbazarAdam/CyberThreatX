@@ -5,7 +5,11 @@ Handles login, logout, and user session management.
 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from flask import redirect, url_for, flash
+import logging
 import db
+import config
+
+logger = logging.getLogger(__name__)
 
 # Initialize Login Manager
 login_manager = LoginManager()

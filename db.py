@@ -2,9 +2,10 @@
 Database Module for CyberThreatX
 Handles all SQLite operations for storing and retrieving threat alerts.
 """
-
 import sqlite3
 import json
+import logging
+import config
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from contextlib import contextmanager
@@ -15,6 +16,8 @@ DB_FILE = "cyberthreatx.db"
 
 # Password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
