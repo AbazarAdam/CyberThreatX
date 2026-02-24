@@ -43,6 +43,7 @@ The system is built on a modular Python architecture:
 | **Database Concurrency** | Implemented SQLite WAL mode and a robust context manager to prevent locking during high-volume ingestion. |
 | **Sigma Mapping** | Created a simplified translation layer to support complex field modifiers like `|contains` and `|re`. |
 | **Duplicate Alerts** | Disabled legacy hardcoded rules in favor of the Sigma engine and added a normalization step in the watcher. |
+| **Layering & Contrast** | Solved Z-index stacking conflicts in the dashboard via explicit CSS layering and pure white text overrides. |
 
 ## 6. Testing & Validation
 The system was validated using:
@@ -59,6 +60,6 @@ The system was validated using:
 CyberThreatX demonstrates that a powerful security operations center can be built with open-source tools and thoughtful engineering. It stands as a testament to the effectiveness of standardized detection logic and automated triage in modern cybersecurity.
 
 ---
-**Author**: [Your Name]
+**Author**: Abazar Adam
 **Date**: February 2026
-**Version**: 4.0
+**Version**: 4.0 (Stable)

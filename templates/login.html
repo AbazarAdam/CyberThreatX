@@ -1,35 +1,73 @@
 {% extends "base.html" %}
 
-{% block title %}Login - CyberThreatX{% endblock %}
+{% block title %}Login | CyberThreatX{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card bg-dark border-secondary mt-5">
-            <div class="card-header border-secondary text-center text-white">
-                <h3 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Login</h3>
-            </div>
-            <div class="card-body">
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-5 col-lg-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-lock-fill text-accent display-4 mb-3 d-block"></i>
+            <h2 class="fw-bold text-bright">System Access</h2>
+            <p class="text-bright small">Please authenticate to access the SOC dashboard</p>
+        </div>
+
+        <div class="card border-0 shadow-lg"
+            style="background: var(--bg-card); border-top: 3px solid var(--accent-primary) !important;">
+            <div class="card-body p-4 p-md-5">
                 <form method="POST">
-                    <div class="mb-3">
-                        <label for="username" class="form-label text-white">Username</label>
-                        <input type="text" class="form-control bg-dark text-white border-secondary" id="username"
-                            name="username" required autofocus>
+                    <div class="mb-4">
+                        <label for="username"
+                            class="form-label text-bright small fw-bold text-uppercase">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-bright"><i
+                                    class="bi bi-person"></i></span>
+                            <input type="text" class="form-control bg-dark border-secondary text-main" id="username"
+                                name="username" placeholder="Enter username" required autofocus>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label text-white">Password</label>
-                        <input type="password" class="form-control bg-dark text-white border-secondary" id="password"
-                            name="password" required>
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label for="password"
+                                class="form-label text-bright small fw-bold text-uppercase mb-0">Password</label>
+                            <a href="#" class="text-accent x-small text-decoration-none">Forgot?</a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-bright"><i
+                                    class="bi bi-key"></i></span>
+                            <input type="password" class="form-control bg-dark border-secondary text-main" id="password"
+                                name="password" placeholder="••••••••" required>
+                        </div>
                     </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                        </button>
                     </div>
                 </form>
             </div>
-            <div class="card-footer border-secondary text-center text-white">
-                <small>Default credentials: admin / changeme</small>
+            <div class="card-footer border-0 bg-dark py-3 text-center">
+                <div class="text-bright x-small">
+                    <i class="bi bi-info-circle me-1"></i> Default: <span class="text-bright fw-bold">admin /
+                        changeme</span>
+                </div>
             </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="text-bright small text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i> Return to Public View
+            </a>
         </div>
     </div>
 </div>
+
+<style>
+    .bg-dark {
+        background-color: #010409 !important;
+    }
+
+    .x-small {
+        font-size: 0.7rem;
+    }
+</style>
 {% endblock %}

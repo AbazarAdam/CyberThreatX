@@ -164,13 +164,54 @@ def init_db(db_path: str = config.DB_PATH) -> None:
             )
         """)
         
+        # 8. Notifications Table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                message TEXT NOT NULL,
+                type TEXT DEFAULT 'info', -- info, success, warning, danger
+                is_read INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        
         # Indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_alert_status ON alerts(status)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_alert_assigned ON alerts(assigned_to)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_corr_status ON correlation_alerts(status)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_intel_ioc ON threat_intel_cache(ioc_value)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id)")
         
         logger.info(f"[✓] Database initialized/upgraded: {db_path}")
+
+
+def add_notification(user_id: int, message: str, type: str = 'info', db_path: str = config.DB_PATH) -> int:
+    """Adds a new notification for a user."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)",
+            (user_id, message, type)
+        )
+        return cursor.lastrowid
+
+def get_notifications(user_id: int, limit: int = 10, db_path: str = config.DB_PATH) -> List[Dict[str, Any]]:
+    """Gets recent notifications for a user."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM notifications WHERE user_id = ? OR user_id IS NULL ORDER BY created_at DESC LIMIT ?",
+            (user_id, limit)
+        )
+        return [dict(row) for row in cursor.fetchall()]
+
+def mark_notifications_as_read(user_id: int, db_path: str = config.DB_PATH):
+    """Marks all notifications for a user as read."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user_id,))
 
 
 def insert_alert(alert_dict: Dict[str, Any], db_path: str = config.DB_PATH) -> int:
@@ -448,6 +489,36 @@ def verify_user(username: str, password_raw: str, db_path: str = DB_FILE) -> Opt
     if user and check_password_hash(user['password_hash'], password_raw):
         return user
     return None
+
+def update_user(user_id: int, username: str = None, password_raw: str = None, role: str = None, db_path: str = DB_FILE) -> bool:
+    """Update user details."""
+    updates = []
+    params = []
+    if username:
+        updates.append("username = ?")
+        params.append(username)
+    if password_raw:
+        updates.append("password_hash = ?")
+        params.append(generate_password_hash(password_raw))
+    if role:
+        updates.append("role = ?")
+        params.append(role)
+    
+    if not updates:
+        return False
+        
+    params.append(user_id)
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = ?", params)
+        return True
+
+def delete_user(user_id: int, db_path: str = DB_FILE) -> bool:
+    """Delete a user."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        return True
 
 # --- Alert Triage ---
 

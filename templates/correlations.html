@@ -1,69 +1,73 @@
 {% extends "base.html" %}
 
-{% block title %}Correlated Alerts - CyberThreatX{% endblock %}
+{% block title %}Incidents | CyberThreatX{% endblock %}
+{% block page_title %}Incident Management{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Correlated Alerts</h2>
-        <p class="text-muted">High-level security incidents grouped from multiple low-level alerts.</p>
+<div class="correlations-theme-restore">
+    <div class="row g-4 mb-4 align-items-center">
+        <div class="col-12">
+            <h2 class="fw-bold text-main mb-1">Correlated Incidents</h2>
+            <p class="text-muted small">High-level security events derived from multiple low-level detections.</p>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Severity</th>
-                                <th>Incident Name</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th>Detected</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for corr in correlations %}
-                            <tr>
-                                <td>
-                                    <span class="badge severity-badge severity-{{ corr.severity }}">
-                                        {{ corr.severity.upper() }}
-                                    </span>
-                                </td>
-                                <td><strong>{{ corr.correlation_name }}</strong></td>
-                                <td>{{ corr.description }}</td>
-                                <td>
-                                    {% if corr.status == 'new' %}
-                                    <span class="badge bg-danger">New</span>
-                                    {% else %}
-                                    <span class="badge bg-success">Closed</span>
-                                    {% endif %}
-                                </td>
-                                <td><small>{{ corr.end_time }}</small></td>
-                                <td class="text-end">
-                                    <a href="{{ url_for('correlation_detail', corr_id=corr.id) }}"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> View Incident
-                                    </a>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-5">
-                                    <i class="bi bi-shield-check display-4 d-block mb-3 text-muted"></i>
-                                    <p class="text-muted">No correlated alerts found. Performance is nominal.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Severity</th>
+                                    <th>Incident Name</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th>Last Activity</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for corr in correlations %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="badge severity-{{ corr.severity }}">
+                                            {{ corr.severity.upper() }}
+                                        </span>
+                                    </td>
+                                    <td><span class="fw-bold text-main">{{ corr.correlation_name }}</span></td>
+                                    <td class="text-bright small">{{ corr.description }}</td>
+                                    <td>
+                                        {% if corr.status == 'new' %}
+                                        <span class="badge bg-danger-subtle text-danger border-0">NEW</span>
+                                        {% else %}
+                                        <span class="badge bg-success-subtle text-success border-0">RESOLVED</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted small">{{ corr.end_time[:19] }}</td>
+                                    <td class="text-end pe-4">
+                                        <a href="{{ url_for('correlation_detail', corr_id=corr.id) }}"
+                                            class="btn btn-sm btn-outline-primary py-1 px-3">
+                                            Investigate
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <i class="bi bi-shield-check text-accent display-4 d-block mb-3"></i>
+                                        <p class="text-black-force">No security incidents detected.
+                                            Environment is nominal.
+                                        </p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

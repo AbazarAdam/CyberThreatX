@@ -210,6 +210,126 @@ def alert_triage(alert_id):
     return redirect(url_for('alert_detail', alert_id=alert_id))
 
 
+@app.route('/api/scan', methods=['POST'])
+@login_required
+def api_scan():
+    """Trigger a mock scan process."""
+    # In a real scenario, this would launch a thread or celery task
+    logger.info(f"[*] Scan triggered by user: {current_user.username}")
+    
+    # Adding a system notification
+    db.add_notification(current_user.id, "A manual scan has been initiated.", "info", DB_PATH)
+    
+    return jsonify({
+        'status': 'success',
+        'message': 'Scan initiated successfully',
+        'job_id': 'SCAN-6682'
+    })
+
+@app.route('/api/notifications')
+@login_required
+def api_notifications():
+    """Fetch user notifications."""
+    notifs = db.get_notifications(current_user.id, DB_PATH)
+    return jsonify(notifs)
+
+@app.route('/api/notifications/read', methods=['POST'])
+@login_required
+def api_notifications_read():
+    """Mark notifications as read."""
+    db.mark_notifications_as_read(current_user.id, DB_PATH)
+    return jsonify({'status': 'success'})
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """User profile page."""
+    if request.method == 'POST':
+        # Mock profile update
+        flash('Profile updated (Mock).', 'success')
+        return redirect(url_for('profile'))
+        
+    user_data = db.get_user_by_id(current_user.id, DB_PATH)
+    return render_template('profile.html', user_data=user_data)
+
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    """System settings page."""
+    if request.method == 'POST':
+        flash('Settings saved (Mock).', 'success')
+        return redirect(url_for('settings'))
+    
+    return render_template('settings.html', config=config)
+
+@app.route('/users')
+@login_required
+def users():
+    """User management page."""
+    if current_user.role != 'admin':
+        flash('Permission denied. Admin access required.', 'danger')
+        return redirect(url_for('index'))
+        
+    with db.get_connection(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users")
+        user_list = [dict(row) for row in cursor.fetchall()]
+    return render_template('users.html', users=user_list)
+
+@app.route('/api/users/add', methods=['POST'])
+@login_required
+def api_user_add():
+    """Add a new analyst user."""
+    if current_user.role != 'admin':
+        return jsonify({'status': 'error', 'message': 'Admin access required'}), 403
+        
+    username = request.form.get('username')
+    password = request.form.get('password')
+    role = request.form.get('role', 'analyst')
+    
+    if not username or not password:
+        return jsonify({'status': 'error', 'message': 'Username and password required'}), 400
+        
+    try:
+        db.create_user(username, password, role, DB_PATH)
+        return jsonify({'status': 'success', 'message': f'User {username} created successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/users/update/<int:user_id>', methods=['POST'])
+@login_required
+def api_user_update(user_id):
+    """Update an existing user."""
+    if current_user.role != 'admin' and current_user.id != user_id:
+        return jsonify({'status': 'error', 'message': 'Permission denied'}), 403
+        
+    username = request.form.get('username')
+    password = request.form.get('password')
+    role = request.form.get('role')
+    
+    try:
+        db.update_user(user_id, username, password, role, DB_PATH)
+        return jsonify({'status': 'success', 'message': 'User updated successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def api_user_delete(user_id):
+    """Delete a user."""
+    if current_user.role != 'admin':
+        return jsonify({'status': 'error', 'message': 'Admin access required'}), 403
+        
+    if current_user.id == user_id:
+        return jsonify({'status': 'error', 'message': 'You cannot delete your own account'}), 400
+        
+    try:
+        db.delete_user(user_id, DB_PATH)
+        return jsonify({'status': 'success', 'message': 'User deleted successfully'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 @app.route('/correlations')
 @login_required
 def correlations():
@@ -301,6 +421,49 @@ def export_alert(alert_id):
     return Response(
         json_data,
         mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
+    )
+
+
+@app.route('/export/alerts/csv')
+@login_required
+def export_alerts_csv():
+    """
+    Export alerts as CSV based on current filters.
+    """
+    import csv
+    import io
+    import json
+    from datetime import datetime
+    
+    # Get all matching alerts (no limit)
+    alerts_list = db.get_alerts(limit=10000, db_path=DB_PATH)
+    
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    if alerts_list:
+        # Header
+        writer.writerow(alerts_list[0].keys())
+        # Data
+        for alert in alerts_list:
+            # Flatten or serialize complex fields if needed
+            row = []
+            for k, v in alert.items():
+                if isinstance(v, (dict, list)):
+                    row.append(json.dumps(v))
+                else:
+                    row.append(v)
+            writer.writerow(row)
+    
+    # Generate filename
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'cyberthreatx_alerts_{timestamp}.csv'
+    
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename={filename}'}
     )
 

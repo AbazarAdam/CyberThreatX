@@ -17,6 +17,7 @@
 - 🔗 **Alert Correlation**: Automated grouping of related alerts (e.g., Brute Force detection).
 - 🧬 **Threat Intel**: Automated enrichment with AlienVault OTX and VirusTotal.
 - 🔐 **RBAC**: Role-based access control for Analysts and Admins.
+- 📊 **Export Capability**: One-click Export to CSV for external reporting.
 - 🐳 **Docker Ready**: Fully containerized for easy deployment.
 
 ---

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile | CyberThreatX{% endblock %}
+{% block page_title %}Account Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg">
+            <div class="card-header border-0 pb-0">
+                <h5 class="fw-bold text-bright mb-0">Profile Information</h5>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 100px; height: 100px; font-size: 3rem;">
+                        <span class="fw-bold">{{ user_data.username[:1]|upper }}</span>
+                    </div>
+                    <h3 class="fw-bold text-main">{{ user_data.username }}</h3>
+                    <span class="badge bg-dark border border-secondary text-white-force">{{ user_data.role|upper
+                        }}</span>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label text-bright small fw-bold text-uppercase">Username</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-main"
+                            value="{{ user_data.username }}" readonly>
+                        <div class="form-text x-small text-white-force">Username cannot be changed for security reasons.
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary-subtle my-4">
+
+                    <div class="mb-4">
+                        <label for="new_password" class="form-label text-bright small fw-bold text-uppercase">New
+                            Password</label>
+                        <input type="password" class="form-control bg-dark border-secondary text-main" id="new_password"
+                            placeholder="Leave blank to keep current">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm_password"
+                            class="form-label text-bright small fw-bold text-uppercase">Confirm
+                            New Password</label>
+                        <input type="password" class="form-control bg-dark border-secondary text-main"
+                            id="confirm_password" placeholder="Confirm new password">
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold">
+                            <i class="bi bi-save me-1"></i> Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer border-0 bg-dark py-3">
+                <div class="text-center">
+                    <span class="text-bright x-small">Member since {{ user_data.created_at[:10] }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-dark {
+        background-color: #010409 !important;
+    }
+
+    .x-small {
+        font-size: 0.7rem;
+    }
+</style>
+{% endblock %}

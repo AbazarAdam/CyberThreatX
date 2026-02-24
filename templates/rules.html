@@ -1,75 +1,123 @@
 {% extends "base.html" %}
 
-{% block title %}Sigma Rules - CyberThreatX Dashboard{% endblock %}
+{% block title %}Sigma Rules | CyberThreatX{% endblock %}
+{% block page_title %}Detection Repository{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="mb-0"><i class="bi bi-shield-check me-2"></i>Sigma Rules</h2>
-        <p class="text-muted">Total Active Rules: <span class="badge bg-primary">{{ rules|length }}</span></p>
+<div class="row g-4 mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-main mb-1">Sigma Rules Library</h2>
+        <p class="text-bright small">A collection of <span class="text-accent fw-bold">{{ rules|length }}</span>
+            active
+            detection rules from the SigmaHQ repository.</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <div class="input-group" style="max-width: 300px; margin-left: auto;">
+            <input type="text" class="form-control bg-dark border-secondary text-bright small"
+                placeholder="Search rules..." id="ruleSearch">
+            <span class="input-group-text bg-dark border-secondary text-bright"><i class="bi bi-search"></i></span>
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Severity</th>
-                                <th>Category</th>
-                                <th>MITRE ATT&CK</th>
-                                <th>Author</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for rule in rules %}
-                            <tr>
-                                <td>
-                                    <span class="fw-bold text-dark">{{ rule.title }}</span>
-                                    <br>
-                                    <small class="text-dark fw-bold">{{ rule.id[:8] }}...</small>
-                                </td>
-                                <td>
-                                    {% if rule.level == 'critical' %}
-                                    <span class="badge bg-danger">Critical</span>
-                                    {% elif rule.level == 'high' %}
-                                    <span class="badge bg-warning text-dark">High</span>
-                                    {% elif rule.level == 'medium' %}
-                                    <span class="badge bg-info text-dark">Medium</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary">Low</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">{{
-                                        rule.logsource.product|capitalize or 'Any' }}/{{
-                                        rule.logsource.service|capitalize or 'Any' }}</span>
-                                </td>
-                                <td>
-                                    {% for tech in rule.mitre_techniques %}
-                                    <span class="badge bg-primary">{{ tech }}</span>
-                                    {% else %}
-                                    <span class="text-muted">None</span>
-                                    {% endfor %}
-                                </td>
-                                <td class="text-dark">{{ rule.author }}</td>
-                                <td>
-                                    <span
-                                        class="badge {% if rule.status == 'stable' %}bg-success{% else %}bg-secondary{% endif %}">{{
-                                        rule.status|capitalize }}</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+<div class="row g-4" id="rulesGrid">
+    {% for rule in rules %}
+    <div class="col-md-6 col-xl-4 rule-card-container">
+        <div class="card h-100 border-0 shadow-sm rule-card">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="badge 
+                        {% if rule.level == 'critical' %}severity-high
+                        {% elif rule.level == 'high' %}severity-high
+                        {% elif rule.level == 'medium' %}severity-medium
+                        {% else %}severity-low{% endif %} border-0 px-2 py-1 x-small">
+                        {{ rule.level|upper if rule.level else 'LOW' }}
+                    </span>
+                    <span class="text-bright small" title="Rule ID: {{ rule.id }}">{{ rule.id[:8] }}</span>
+                </div>
+
+                <h5 class="fw-bold text-white-force mb-2 rule-title">{{ rule.title }}</h5>
+                <p class="text-bright small mb-4 line-clamp-2">By {{ rule.author or 'Unknown' }}</p>
+
+                <div class="mb-3">
+                    <div class="text-bright small fw-bold text-uppercase x-small mb-2">Log Source</div>
+                    <span class="badge bg-dark border border-secondary text-bright me-1">
+                        {{ rule.logsource.product|capitalize or 'Any' }}
+                    </span>
+                    <span class="badge bg-dark border border-secondary text-bright">
+                        {{ rule.logsource.service|capitalize or 'Any' }}
+                    </span>
+                </div>
+
+                <div>
+                    <div class="text-bright small fw-bold text-uppercase x-small mb-2">Techniques</div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for tech in rule.mitre_techniques %}
+                        <span class="badge bg-primary-subtle text-primary border-0 small">{{ tech }}</span>
+                        {% else %}
+                        <span class="text-bright x-small">None specified</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer border-0 bg-transparent p-4 pt-0">
+                <hr class="border-secondary-subtle my-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span
+                        class="badge {% if rule.status == 'stable' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-bright{% endif %} border-0 x-small">
+                        {{ rule.status|upper if rule.status else 'EXPERIMENTAL' }}
+                    </span>
+                    <button class="btn btn-sm btn-outline-primary border-0 x-small fw-bold">
+                        VIEW YAML <i class="bi bi-code-slash ms-1"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    {% endfor %}
 </div>
+
+<style>
+    .rule-card {
+        transition: var(--transition);
+    }
+
+    .rule-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .x-small {
+        font-size: 0.65rem;
+        letter-spacing: 0.5px;
+    }
+
+    .bg-dark {
+        background-color: #010409 !important;
+    }
+</style>
+
+<script>
+    document.getElementById('ruleSearch').addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.rule-card-container');
+
+        cards.forEach(card => {
+            const title = card.querySelector('.rule-title').innerText.toLowerCase();
+            if (title.includes(term)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
 {% endblock %}

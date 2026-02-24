@@ -1,165 +1,178 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - CyberThreatX{% endblock %}
+{% block title %}Dashboard | CyberThreatX{% endblock %}
+{% block page_title %}Security Overview{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4">
-            <i class="bi bi-speedometer2"></i> Threat Detection Dashboard
-        </h1>
+<div class="row g-4 mb-4">
+    <!-- Header Summary -->
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Welcome back, {{ current_user.username }}</h2>
+            <p class="text-bright small">Here's what's happening in your environment today.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="location.reload();">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+            <button class="btn btn-primary btn-sm" id="btnScanDashboard">
+                <i class="bi bi-lightning-charge-fill me-1 text-warning"></i> Scan Now
+            </button>
+        </div>
     </div>
 </div>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-2 mb-3">
-        <div class="card stat-card total">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Total</h6>
-                <h2 class="card-title mb-0">{{ stats.total_alerts }}</h2>
-            </div>
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card border-0">
+            <div class="stat-value text-accent">{{ stats.total_alerts }}</div>
+            <div class="stat-label">Total Alerts</div>
+            <i class="bi bi-shield-exclamation stat-icon"></i>
         </div>
     </div>
-    <div class="col-md-2 mb-3">
-        <div class="card stat-card high">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">High</h6>
-                <h2 class="card-title mb-0">{{ stats.alerts_by_severity.get('high', 0) }}</h2>
-            </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card border-0">
+            <div class="stat-value text-danger">{{ stats.alerts_by_severity.get('high', 0) }}</div>
+            <div class="stat-label">High Severity</div>
+            <i class="bi bi-fire stat-icon text-danger"></i>
         </div>
     </div>
-    <div class="col-md-2 mb-3">
-        <div class="card stat-card medium">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Medium</h6>
-                <h2 class="card-title mb-0">{{ stats.alerts_by_severity.get('medium', 0) }}</h2>
-            </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card border-0">
+            <div class="stat-value text-warning">{{ stats.alerts_by_severity.get('medium', 0) }}</div>
+            <div class="stat-label">Last 24 Hours</div>
+            <i class="bi bi-activity stat-icon text-warning"></i>
         </div>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card recent">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Last 24h</h6>
-                <h2 class="card-title mb-0">{{ stats.alerts_last_24h }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card"
-            style="background: linear-gradient(135deg, #6f42c1, #4b2c82); color: white; border: none; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3); border-radius: 10px;">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2" style="color: rgba(255,255,255,0.7);">Rule Engine Health</h6>
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="card-title mb-0">{{ rule_health.count }}</h2>
+    <div class="col-md-6 col-lg-3">
+        <div class="card stat-card border-0"
+            style="background: linear-gradient(135deg, rgba(0, 255, 157, 0.05), rgba(0, 212, 255, 0.05)); border: 1px solid rgba(0, 255, 157, 0.1) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div
+                        class="stat-value {% if rule_health.status == 'Healthy' %}text-accent{% else %}text-warning{% endif %}">
+                        {{ rule_health.count }}</div>
+                    <div class="stat-label">Sigma Rules</div>
+                </div>
+                <div class="text-end">
                     <span
-                        class="badge {% if rule_health.status == 'Healthy' %}bg-success{% else %}bg-warning{% endif %}">
+                        class="badge {% if rule_health.status == 'Healthy' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} border-0 px-2 py-1">
                         {{ rule_health.status }}
                     </span>
                 </div>
             </div>
+            <i class="bi bi-check2-circle stat-icon text-accent"></i>
         </div>
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row mb-4">
-    <!-- Severity Distribution Chart -->
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Alerts by Severity</h5>
+<div class="row g-4">
+    <!-- Charts Section -->
+    <div class="col-lg-8">
+        <div class="card h-100" style="position: relative; z-index: 10;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="text-white-force"><i class="bi bi-bar-chart-fill text-accent me-2"></i> Threats by
+                    Severity</span>
+                <div class="dropdown">
+                    <button class="btn btn-sm text-bright" data-bs-toggle="dropdown"><i
+                            class="bi bi-three-dots-vertical"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item dropdown-item-green" href="/export/alerts/csv">Download CSV</a></li>
+                        <li><a class="dropdown-item dropdown-item-green" href="/alerts">View Full Report</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="severityChart"></canvas>
+            <div class="card-body p-4">
+                <div style="height: 300px;">
+                    <canvas id="severityChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Top Rules Chart -->
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-list-check"></i> Top Detection Rules</h5>
+    <!-- Top Rules -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header border-0 pb-0">
+                <h6 class="fw-bold mb-3 text-white-force"><i class="bi bi-list-stars text-accent me-2"></i> Top
+                    Detection Rules</h6>
             </div>
             <div class="card-body">
                 {% if stats.top_rules %}
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>Rule Name</th>
-                            <th class="text-end">Count</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rule_name, count in stats.top_rules %}
-                        <tr>
-                            <td>{{ rule_name }}</td>
-                            <td class="text-end"><span class="badge bg-primary">{{ count }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="list-group list-group-flush bg-transparent">
+                    {% for rule_name, count in stats.top_rules %}
+                    <div class="list-group-item bg-transparent border-0 px-0 mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-white-force fw-semibold small">{{ rule_name }}</span>
+                            <span class="text-accent fw-bold">{{ count }}</span>
+                        </div>
+                        <div class="progress" style="height: 4px; background: var(--border-color);">
+                            <div class="progress-bar bg-accent" role="progressbar"
+                                style="width: {{ (count / stats.total_alerts * 100)|round if stats.total_alerts > 0 else 0 }}%;">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% else %}
-                <p class="text-muted text-center">No alerts yet</p>
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-bright display-4"></i>
+                    <p class="text-bright mt-3">No detections recorded yet.</p>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- Recent Alerts -->
-<div class="row">
+    <!-- Recent Alerts -->
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Alerts</h5>
-                <a href="/alerts" class="btn btn-sm btn-light">View All</a>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="text-white-force"><i class="bi bi-clock-history text-accent me-2"></i> Recent Security
+                    Alerts</span>
+                <a href="/alerts" class="text-accent text-decoration-none small">View all alerts <i
+                        class="bi bi-arrow-right ms-1"></i></a>
             </div>
-            <div class="card-body">
-                {% if recent_alerts %}
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Timestamp</th>
-                                <th>Rule</th>
+                                <th>Incident / Rule</th>
                                 <th>Severity</th>
-                                <th>Score</th>
-                                <th>Event ID</th>
                                 <th>Computer</th>
-                                <th>MITRE</th>
-                                <th>Actions</th>
+                                <th>ATT&CK</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for alert in recent_alerts %}
                             <tr>
-                                <td class="text-dark"><small>{{ alert.timestamp[:19] }}</small></td>
-                                <td class="text-dark"><strong>{{ alert.rule_name }}</strong></td>
+                                <td class="text-bright small">{{ alert.timestamp[5:19] }}</td>
                                 <td>
-                                    <span class="badge severity-badge severity-{{ alert.severity }}">
+                                    <div class="fw-bold text-main">{{ alert.rule_name }}</div>
+                                    <div class="text-bright x-small">ID: {{ alert.id }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge severity-{{ alert.severity }}">
                                         {{ alert.severity.upper() }}
                                     </span>
                                 </td>
-                                <td class="text-dark"><strong>{{ alert.score }}/10</strong></td>
-                                <td class="text-dark">
-                                    <code>{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id }}{% endif %}</code>
-                                </td>
-                                <td class="text-dark">{{ alert.computer }}</td>
+                                <td class="text-main small">{{ alert.computer }}</td>
                                 <td>
                                     {% if alert.mitre_technique %}
-                                    <a href="https://attack.mitre.org/techniques/{{ alert.mitre_technique }}/"
-                                        target="_blank" class="badge bg-info text-decoration-none">
+                                    <span class="badge bg-secondary-subtle text-bright border border-secondary-subtle">
                                         {{ alert.mitre_technique }}
-                                    </a>
+                                    </span>
                                     {% else %}
-                                    <span class="text-muted">-</span>
+                                    <span class="text-bright">-</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    <a href="/alert/{{ alert.id }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> View
+                                <td class="text-end">
+                                    <a href="/alert/{{ alert.id }}" class="btn btn-sm btn-outline-secondary border-0">
+                                        <i class="bi bi-chevron-right"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -167,64 +180,91 @@
                         </tbody>
                     </table>
                 </div>
-                {% else %}
-                <div class="alert alert-info text-center">
-                    <i class="bi bi-info-circle"></i> No alerts detected yet. Start monitoring EVTX files to see threats
-                    here.
+                {% if not recent_alerts %}
+                <div class="text-center py-5">
+                    <p class="text-bright">No alerts found</p>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .x-small {
+        font-size: 0.65rem;
+    }
+
+    .bg-accent {
+        background-color: var(--accent-primary) !important;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Severity Distribution Chart
-    const severityData = {
-        labels: ['High', 'Medium', 'Low'],
-        datasets: [{
-            label: 'Alerts',
-            data: [
-                {{ stats.alerts_by_severity.get('high', 0) }},
-        {{ stats.alerts_by_severity.get('medium', 0) }},
-        {{ stats.alerts_by_severity.get('low', 0) }}
-            ],
-    backgroundColor: [
-        '#dc3545',
-        '#ffc107',
-        '#0dcaf0'
-    ],
-        borderWidth: 0
-        }]
-    };
+    document.addEventListener('DOMContentLoaded', function () {
+        // Severity Distribution Chart
+        const ctx = document.getElementById('severityChart').getContext('2d');
 
-    const severityConfig = {
-        type: 'bar',
-        data: severityData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
+        // Define gradients
+        const gradientHigh = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientHigh.addColorStop(0, 'rgba(255, 62, 62, 0.4)');
+        gradientHigh.addColorStop(1, 'rgba(255, 62, 62, 0.1)');
+
+        const gradientMed = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientMed.addColorStop(0, 'rgba(255, 193, 7, 0.4)');
+        gradientMed.addColorStop(1, 'rgba(255, 193, 7, 0.1)');
+
+        const gradientLow = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientLow.addColorStop(0, 'rgba(0, 212, 255, 0.4)');
+        gradientLow.addColorStop(1, 'rgba(0, 212, 255, 0.1)');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['High', 'Medium', 'Low'],
+                datasets: [{
+                    label: 'Alerts',
+                    data: [
+                        {{ stats.alerts_by_severity.get('high', 0) }},
+                {{ stats.alerts_by_severity.get('medium', 0) }},
+                        {{ stats.alerts_by_severity.get('low', 0) }}
+                    ],
+        backgroundColor: [gradientHigh, gradientMed, gradientLow],
+        borderColor: ['#ff3e3e', '#ffc107', '#00d4ff'],
+        borderWidth: 2,
+        borderRadius: 5,
+        barPercentage: 0.6
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                enabled: true,
+                backgroundColor: '#161b22',
+                titleColor: '#c9d1d9',
+                bodyColor: '#8b949e',
+                borderColor: '#30363d',
+                borderWidth: 1,
+                padding: 10,
+                displayColors: false
+            }
+        },
+        scales: {
+            y: {
+                grid: { color: 'rgba(48, 54, 61, 0.5)' },
+                ticks: { stepSize: 1 }
+            },
+            x: {
+                grid: { display: false }
             }
         }
-    };
-
-    new Chart(
-        document.getElementById('severityChart'),
-        severityConfig
-    );
+    }
+        });
+    });
 </script>
 {% endblock %}

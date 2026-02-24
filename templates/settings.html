@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Settings | CyberThreatX{% endblock %}
+{% block page_title %}System Configuration{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="list-group list-group-flush border-0 rounded shadow-sm overflow-hidden">
+            <a href="#general"
+                class="list-group-item list-group-item-action bg-dark text-bright border-secondary py-3 active">
+                <i class="bi bi-gear me-2"></i> General Settings
+            </a>
+            <a href="#api" class="list-group-item list-group-item-action bg-dark text-bright border-secondary py-3">
+                <i class="bi bi-key me-2"></i> API Integrations
+            </a>
+            <a href="#detection"
+                class="list-group-item list-group-item-action bg-dark text-bright border-secondary py-3">
+                <i class="bi bi-shield-check me-2"></i> Detection Engine
+            </a>
+            <a href="#notifications"
+                class="list-group-item list-group-item-action bg-dark text-bright border-secondary py-3">
+                <i class="bi bi-bell me-2"></i> Notification Prefs
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    <h5 class="fw-bold text-bright mb-4">General Configuration</h5>
+
+                    <div class="mb-4">
+                        <label class="form-label text-bright small fw-bold text-uppercase">Database Path</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-main"
+                            value="{{ config.DB_PATH }}" readonly>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-bright small fw-bold text-uppercase">Sigma Rules
+                            Directory</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-main"
+                            value="{{ config.SIGMA_RULES_DIR }}" readonly>
+                    </div>
+
+                    <h5 class="fw-bold text-bright mb-4 mt-5">Threat Intelligence</h5>
+
+                    <div class="mb-4">
+                        <label for="otx_key" class="form-label text-bright small fw-bold text-uppercase">OTX API
+                            Key</label>
+                        <input type="password" class="form-control bg-dark border-secondary text-main" id="otx_key"
+                            value="{{ config.OTX_API_KEY or '' }}" placeholder="Enter AlienVault OTX Key">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="vt_key" class="form-label text-bright small fw-bold text-uppercase">VirusTotal API
+                            Key</label>
+                        <input type="password" class="form-control bg-dark border-secondary text-main" id="vt_key"
+                            value="{{ config.VIRUSTOTAL_API_KEY or '' }}" placeholder="Enter VirusTotal API Key">
+                    </div>
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary py-2 fw-bold">
+                            <i class="bi bi-check-lg me-1"></i> Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-dark {
+        background-color: #010409 !important;
+    }
+
+    .list-group-item.active {
+        background-color: var(--accent-primary) !important;
+        color: var(--bg-dark) !important;
+        border-color: var(--accent-primary) !important;
+    }
+</style>
+{% endblock %}

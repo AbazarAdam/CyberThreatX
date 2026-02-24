@@ -1,160 +1,134 @@
 {% extends "base.html" %}
 
-{% block title %}Alert #{{ alert.id }} - CyberThreatX{% endblock %}
+{% block title %}Alert #{{ alert.id }} | CyberThreatX{% endblock %}
+{% block page_title %}Alert Analysis{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row g-4 mb-4">
     <div class="col-12">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/alerts">Alerts</a></li>
-                <li class="breadcrumb-item active">Alert #{{ alert.id }}</li>
+            <ol class="breadcrumb mb-0 x-small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-bright">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/alerts" class="text-decoration-none text-bright">Alerts</a></li>
+                <li class="breadcrumb-item active text-main">Alert #{{ alert.id }}</li>
             </ol>
         </nav>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-12">
-        <h1 class="mb-3">
-            <i class="bi bi-file-earmark-text"></i> Alert Details
-            <span class="badge severity-badge severity-{{ alert.severity }} ms-2">
-                {{ alert.severity.upper() }}
-            </span>
-        </h1>
-    </div>
-</div>
-
-<!-- Alert Summary -->
-<div class="row mb-4">
+<div class="row g-4">
+    <!-- Analysis Core -->
     <div class="col-lg-8">
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-primary bg-opacity-25">
-                        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Alert Information</h5>
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h2 class="fw-bold text-main mb-1">{{ alert.rule_name }}</h2>
+                <div class="d-flex gap-3 align-items-center">
+                    <span class="badge severity-{{ alert.severity }} px-3 py-2 fs-6">
+                        {{ alert.severity.upper() }} SEVERITY
+                    </span>
+                    <span class="text-bright small"><i class="bi bi-clock me-1"></i> Detected {{ alert.timestamp[:19]
+                        }}</span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/export/alert/{{ alert.id }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-download me-1"></i> Export JSON
+                </a>
+            </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card h-100 border-0">
+                    <div class="card-header border-0 pb-0">
+                        <h6 class="text-accent small fw-bold text-uppercase">Alert Properties</h6>
                     </div>
                     <div class="card-body">
-                        <table class="table table-sm">
-                            <tbody>
-                                <tr>
-                                    <th style="width: 40%;">Alert ID</th>
-                                    <td><strong>#{{ alert.id }}</strong></td>
-                                </tr>
-                                <tr>
-                                    <th>Rule Name</th>
-                                    <td>{{ alert.rule_name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Status</th>
-                                    <td>
-                                        {% if alert.status == 'new' %}
-                                        <span class="badge bg-danger">New</span>
-                                        {% elif alert.status == 'in_progress' %}
-                                        <span class="badge bg-warning text-dark">In Progress</span>
-                                        {% else %}
-                                        <span class="badge bg-success">Closed</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Severity</th>
-                                    <td>
-                                        <span class="badge severity-badge severity-{{ alert.severity }}">
-                                            {{ alert.severity.upper() }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Threat Score</th>
-                                    <td><strong>{{ alert.score }}/10</strong></td>
-                                </tr>
-                                <tr>
-                                    <th>MITRE ATT&CK</th>
-                                    <td>
-                                        {% if alert.mitre_technique %}
-                                        <span class="badge bg-primary">{{ alert.mitre_technique }}</span>
-                                        {% else %}
-                                        <span class="text-muted">None</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">Threat Score</span>
+                            <span class="text-main fw-bold">{{ alert.score }}/10</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">MITRE Tactic</span>
+                            <span class="text-main fw-bold">{% if alert.mitre_technique %}{{ alert.mitre_technique }}{%
+                                else %}N/A{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">Status</span>
+                            {% if alert.status == 'new' %}
+                            <span class="badge bg-danger-subtle text-danger border-0">NEW</span>
+                            {% elif alert.status == 'in_progress' %}
+                            <span class="badge bg-warning-subtle text-warning border-0">INVESTIGATING</span>
+                            {% else %}
+                            <span class="badge bg-success-subtle text-success border-0">CLOSED</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6 mb-4">
-                <div class="card h-100">
-                    <div class="card-header bg-success bg-opacity-25">
-                        <h5 class="mb-0"><i class="bi bi-pc-display me-2"></i>Event Information</h5>
+            <div class="col-md-6">
+                <div class="card h-100 border-0">
+                    <div class="card-header border-0 pb-0">
+                        <h6 class="text-accent small fw-bold text-uppercase">Target Entity</h6>
                     </div>
                     <div class="card-body">
-                        <table class="table table-sm">
-                            <tbody>
-                                <tr>
-                                    <th style="width: 40%;">Event ID</th>
-                                    <td><code>{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id }}{% endif %}</code>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Computer</th>
-                                    <td><strong>{{ alert.computer }}</strong></td>
-                                </tr>
-                                <tr>
-                                    <th>Event Timestamp</th>
-                                    <td>{{ alert.timestamp }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Alert Created</th>
-                                    <td>{{ alert.created_at }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">Hostname</span>
+                            <span class="text-main fw-bold">{{ alert.computer }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">Event ID</span>
+                            <span class="text-main fw-bold">{% if alert.event_id == -1 %}N/A{% else %}{{ alert.event_id
+                                }}{% endif %}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-bright small">Ingested At</span>
+                            <span class="text-main fw-bold small">{{ alert.created_at[:19] }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Threat Intelligence -->
+        <!-- Threat Intelligence Enrichment -->
         {% if threat_intel %}
-        <div class="card mb-4">
-            <div class="card-header bg-danger bg-opacity-10 text-danger">
-                <h5 class="mb-0"><i class="bi bi-shield-exclamation me-2"></i>External Intelligence Findings</h5>
+        <div class="card border-0 mb-4 overflow-hidden">
+            <div class="card-header border-0 bg-danger-subtle py-3">
+                <h6 class="mb-0 text-danger fw-bold"><i class="bi bi-shield-shaded me-2"></i>External Intelligence
+                    Findings</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover table-sm mb-0">
-                        <thead>
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-dark">
                             <tr>
-                                <th>Indicator</th>
+                                <th class="ps-4">Indicator</th>
                                 <th>Type</th>
-                                <th>Source</th>
-                                <th>Severity/Pulses</th>
-                                <th>Actions</th>
+                                <th>Findings</th>
+                                <th class="text-end pe-4">Pivot</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for intel in threat_intel %}
                             <tr>
-                                <td><code>{{ intel.value }}</code></td>
-                                <td><span class="badge bg-secondary">{{ intel.type.upper() }}</span></td>
-                                <td>{{ intel.source }}</td>
-                                <td>
-                                    <span class="badge bg-danger">{{ intel.pulses }} Pulses</span>
-                                </td>
-                                <td>
+                                <td class="ps-4"><code class="text-danger fw-bold">{{ intel.value }}</code></td>
+                                <td><span class="badge bg-dark border border-secondary text-bright">{{ intel.type.upper()
+                                        }}</span></td>
+                                <td><span class="text-danger fw-bold">{{ intel.pulses }} Pulses</span> in OTX</td>
+                                <td class="text-end pe-4">
                                     {% if intel.type == 'ip' %}
                                     <a href="https://otx.alienvault.com/indicator/ip/{{ intel.value }}" target="_blank"
-                                        class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                        class="btn btn-sm btn-outline-danger border-0">OTX <i
+                                            class="bi bi-box-arrow-up-right ms-1"></i></a>
                                     {% elif intel.type == 'domain' %}
                                     <a href="https://otx.alienvault.com/indicator/domain/{{ intel.value }}"
-                                        target="_blank" class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                        target="_blank" class="btn btn-sm btn-outline-danger border-0">OTX <i
+                                            class="bi bi-box-arrow-up-right ms-1"></i></a>
                                     {% elif intel.type == 'hash' %}
                                     <a href="https://otx.alienvault.com/indicator/file/{{ intel.value }}"
-                                        target="_blank" class="btn btn-outline-info btn-xs py-0">OTX</a>
+                                        target="_blank" class="btn btn-sm btn-outline-danger border-0">OTX <i
+                                            class="bi bi-box-arrow-up-right ms-1"></i></a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -166,98 +140,157 @@
         </div>
         {% endif %}
 
-        <!-- Raw Event Data -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-code-square me-2"></i>Raw Event Data</h5>
+        <!-- Technical Analysis -->
+        <div class="card border-0 mb-4">
+            <div class="card-header border-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-main">Technical Details / Raw Event</h6>
+                <button class="btn btn-sm btn-outline-secondary border-0" onclick="copyRaw()">
+                    <i class="bi bi-copy me-1"></i> Copy
+                </button>
             </div>
-            <div class="card-body">
-                <pre class="bg-light p-3 rounded mb-0"
-                    style="max-height: 400px; overflow: auto;"><code class="text-info">{{ raw_event_json }}</code></pre>
+            <div class="card-body p-0">
+                <pre class="mb-0 p-4 bg-dark text-info small" id="rawEvent"
+                    style="max-height: 500px; overflow-y: auto; scrollbar-width: thin;"><code>{{ raw_event_json }}</code></pre>
             </div>
         </div>
 
-        <!-- Comments -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>Comments</h5>
+        <!-- Investigation History -->
+        <div class="card border-0 mb-4">
+            <div class="card-header border-0">
+                <h6 class="fw-bold mb-0 text-main"><i class="bi bi-journal-text me-2"></i>Analyst Notes & History</h6>
             </div>
             <div class="card-body">
                 {% for comment in comments %}
-                <div class="mb-3 pb-3 border-bottom">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">{{ comment.username }}</span>
-                        <small class="text-muted">{{ comment.created_at }}</small>
+                <div class="d-flex gap-3 mb-4">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                        style="width: 40px; height: 40px;">
+                        <span class="fw-bold small">{{ comment.username[:1]|upper }}</span>
                     </div>
-                    <div class="mt-1">{{ comment.comment }}</div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-main small">{{ comment.username }}</span>
+                            <span class="text-bright x-small">{{ comment.created_at }}</span>
+                        </div>
+                        <div class="text-bright small p-3 bg-dark rounded border border-secondary-subtle">
+                            {{ comment.comment }}
+                        </div>
+                    </div>
                 </div>
                 {% else %}
-                <p class="text-muted text-center my-3">No comments yet.</p>
+                <div class="text-center py-4">
+                    <p class="text-bright small">No investigation notes yet.</p>
+                </div>
                 {% endfor %}
 
                 <form action="{{ url_for('alert_triage', alert_id=alert.id) }}" method="POST" class="mt-4">
                     <div class="mb-3">
-                        <label for="comment" class="form-label">Add Comment</label>
-                        <textarea class="form-control" id="comment" name="comment" rows="3"
-                            placeholder="Add technical details or response actions..."></textarea>
+                        <textarea class="form-control bg-dark border-secondary text-main" id="comment" name="comment"
+                            rows="3" placeholder="Add investigation findings or comments..."></textarea>
                     </div>
                     <div class="text-end">
-                        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold">Post Note</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Triage Sidebar -->
+    <!-- Triage Workflow Sidebar -->
     <div class="col-lg-4">
-        <div class="card mb-4 sticky-top" style="top: 80px; z-index: 1000;">
-            <div class="card-header bg-warning bg-opacity-25">
-                <h5 class="mb-0"><i class="bi bi-person-check me-2"></i>Alert Triage</h5>
-            </div>
-            <div class="card-body">
-                <form action="{{ url_for('alert_triage', alert_id=alert.id) }}" method="POST">
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Change Status</label>
-                        <select class="form-select" id="status" name="status">
-                            <option value="new" {% if alert.status=='new' %}selected{% endif %}>New</option>
-                            <option value="in_progress" {% if alert.status=='in_progress' %}selected{% endif %}>In
-                                Progress</option>
-                            <option value="closed" {% if alert.status=='closed' %}selected{% endif %}>Closed</option>
-                        </select>
-                    </div>
+        <div class="sticky-top" style="top: 84px;">
+            <div class="card border-0 shadow-lg"
+                style="background: linear-gradient(to bottom, var(--bg-card), var(--bg-sidebar));">
+                <div class="card-header border-0 pb-0">
+                    <h5 class="fw-bold text-main mb-3"><i
+                            class="bi bi-lightning-charge-fill text-warning me-2"></i>Response Actions</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('alert_triage', alert_id=alert.id) }}" method="POST">
+                        <div class="mb-4">
+                            <label for="status" class="form-label text-bright small fw-bold text-uppercase">Incident
+                                Status</label>
+                            <select class="form-select bg-dark border-secondary text-main" id="status" name="status">
+                                <option value="new" {% if alert.status=='new' %}selected{% endif %}>New / Unverified
+                                </option>
+                                <option value="in_progress" {% if alert.status=='in_progress' %}selected{% endif %}>
+                                    Active Investigation</option>
+                                <option value="closed" {% if alert.status=='closed' %}selected{% endif %}>Resolved /
+                                    Closed</option>
+                            </select>
+                        </div>
 
-                    <div class="mb-4">
-                        <label for="assigned_to" class="form-label">Assign Analyst</label>
-                        <select class="form-select" id="assigned_to" name="assigned_to">
-                            <option value="">-- Unassigned --</option>
-                            <option value="1" {% if alert.assigned_to==1 %}selected{% endif %}>Admin</option>
-                            <!-- More users would be dynamically loaded here -->
-                        </select>
-                    </div>
+                        <div class="mb-4">
+                            <label for="assigned_to" class="form-label text-bright small fw-bold text-uppercase">Assigned
+                                Analyst</label>
+                            <select class="form-select bg-dark border-secondary text-main" id="assigned_to"
+                                name="assigned_to">
+                                <option value="">-- Unassigned --</option>
+                                <option value="1" {% if alert.assigned_to==1 %}selected{% endif %}>Admin (You)</option>
+                            </select>
+                        </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-warning">Update Triage</button>
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                                <i class="bi bi-check-circle me-1"></i> Update Alert Status
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="border-top border-secondary-subtle pt-3 mt-3">
+                        <h6 class="text-bright small fw-bold text-uppercase mb-3">Quick Response</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-danger btn-sm flex-fill"
+                                onclick="alert('Isolating host: {{ alert.computer }}...')">
+                                <i class="bi bi-x-octagon me-1"></i> Isolate Host
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm flex-fill"
+                                onclick="alert('Killing suspicious process...')">
+                                <i class="bi bi-slash-circle me-1"></i> Kill Process
+                            </button>
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div class="card-footer border-0 bg-dark py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-bright x-small">Assigned to</span>
+                        <span class="text-main fw-bold small text-truncate">
+                            {% if alert.assigned_to == 1 %}Admin{% else %}Unassigned{% endif %}
+                        </span>
+                    </div>
+                </div>
             </div>
-            <div class="card-footer">
-                <small class="text-muted d-block">Assigned to: <strong>{{ current_user.username if alert.assigned_to ==
-                        current_user.id else 'None' }}</strong></small>
+
+            <!-- Helpful Tooltips -->
+            <div class="card border-0 bg-info-subtle mt-4 p-3 border-start border-4 border-info">
+                <div class="d-flex gap-2 text-info">
+                    <i class="bi bi-lightbulb-fill"></i>
+                    <div>
+                        <h6 class="small fw-bold mb-1">SOC Tip</h6>
+                        <p class="mb-0 x-small text-dark text-opacity-75">Check the raw event data for "ProcessID" and
+                            "ParentImage" to identify the origin of the activity.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Actions -->
-<div class="row">
-    <div class="col-12">
-        <a href="/alerts" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Alerts
-        </a>
-        <a href="/export/alert/{{ alert.id }}" class="btn btn-primary">
-            <i class="bi bi-download"></i> Export as JSON
-        </a>
-    </div>
-</div>
+<script>
+    function copyRaw() {
+        const code = document.getElementById('rawEvent').innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            alert('Event data copied to clipboard!');
+        });
+    }
+</script>
+
+<style>
+    .x-small {
+        font-size: 0.75rem;
+    }
+
+    .bg-dark {
+        background-color: #010409 !important;
+    }
+</style>
 {% endblock %}

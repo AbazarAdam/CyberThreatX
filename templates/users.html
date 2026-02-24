@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}User Management | CyberThreatX{% endblock %}
+{% block page_title %}Administrative Controls{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-bright mb-1">System Users</h2>
+        <p class="text-bright small">Manage analyst access and system permissions.</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary btn-sm px-3 fw-bold" id="btnAddUser">
+            <i class="bi bi-person-plus me-1"></i> Add Analyst
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 text-bright">ID</th>
+                                <th class="text-bright">Username</th>
+                                <th class="text-bright">Role</th>
+                                <th class="text-bright">Created At</th>
+                                <th class="text-end pe-4 text-bright">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td class="ps-4 text-black-force small">#{{ user.id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                            style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                            {{ user.username[:1]|upper }}
+                                        </div>
+                                        <span class="fw-bold text-main">{{ user.username }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge {% if user.role == 'admin' %}bg-danger-subtle text-danger{% else %}bg-info-subtle text-info{% endif %} border-0 x-small">
+                                        {{ user.role|upper }}
+                                    </span>
+                                </td>
+                                <td class="text-black-force small">{{ user.created_at[:10] }}</td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-secondary border-0"
+                                        onclick="editUser({{ user.id }}, '{{ user.username }}', '{{ user.role }}')">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger border-0"
+                                        onclick="deleteUser({{ user.id }}, '{{ user.username }}')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block modals %}
+<!-- Add/Edit User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title fw-bold text-bright" id="userModalLabel">Add New Analyst</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="userForm">
+                    <input type="hidden" id="userId" name="user_id">
+                    <div class="mb-3">
+                        <label for="username"
+                            class="form-label text-bright small fw-bold text-uppercase">Username</label>
+                        <input type="text" class="form-control bg-dark border-secondary text-bright" id="username"
+                            name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-bright small fw-bold text-uppercase"
+                            id="passwordLabel">Password</label>
+                        <input type="password" class="form-control bg-dark border-secondary text-bright" id="password"
+                            name="password" required>
+                        <div class="form-text x-small text-bright" id="passwordHint"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label text-bright small fw-bold text-uppercase">Role</label>
+                        <select class="form-select bg-dark border-secondary text-bright" id="role" name="role">
+                            <option value="analyst">Analyst</option>
+                            <option value="admin">System Admin</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary btn-sm px-3" id="saveUserBtn">Save Analyst</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small {
+        font-size: 0.65rem;
+    }
+</style>
+{% endblock %}
