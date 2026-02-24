@@ -59,40 +59,37 @@ graph TD
    cd CyberThreatX
    ```
 
-2. **Set up virtual environment:**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Initialize Configuration:**
+3. **Initialize Configuration:**
    ```bash
    cp config.example.py config.py
-   # Edit config.py with your API keys and paths
+   # Edit config.py with your API keys and paths (if needed)
    ```
 
 ---
 
 ## 🖥️ Usage
 
-### 1. Start the Dashboard
+### 🚀 Unified Launch (Recommended)
+The easiest way to start both the dashboard and the log watcher is using the unified script:
 ```bash
-python dashboard.py
+python run_all.py
 ```
+This will launch the dashboard at [http://localhost:5000](http://localhost:5000) and start monitoring the `monitored_logs` directory.
+
+### Manual Launch
+If you prefer to run components separately:
+
+1. **Start the Dashboard**: `python dashboard.py`
+2. **Start the Log Watcher**: `python watcher.py --watch-dir monitored_logs`
+
 Access at [http://localhost:5000](http://localhost:5000). Default credentials: `admin` / `changeme`.
 
-### 2. Start the Log Watcher
-```bash
-python watcher.py --watch-dir monitored_logs
-```
-Drop any `.evtx`, `.json`, or `.csv` files into `monitored_logs` for real-time processing.
-
-### 3. Run Manual Ingestion
+### ⚡ Manual Ingestion
 ```bash
 python detect.py --file samples/security.evtx --db cyberthreatx.db
 ```
