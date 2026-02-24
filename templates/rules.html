@@ -67,7 +67,9 @@
                         class="badge {% if rule.status == 'stable' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-bright{% endif %} border-0 x-small">
                         {{ rule.status|upper if rule.status else 'EXPERIMENTAL' }}
                     </span>
-                    <button class="btn btn-sm btn-outline-primary border-0 x-small fw-bold">
+                    <button class="btn btn-sm btn-outline-primary border-0 x-small fw-bold view-yaml-btn"
+                        data-bs-toggle="modal" data-bs-target="#yamlModal" data-rule-title="{{ rule.title }}"
+                        data-rule-id="{{ rule.id }}">
                         VIEW YAML <i class="bi bi-code-slash ms-1"></i>
                     </button>
                 </div>
@@ -118,6 +120,76 @@
                 card.style.display = 'none';
             }
         });
+    });
+</script>
+{% endblock %}
+
+{% block modals %}
+<!-- YAML Modal -->
+<div class="modal" id="yamlModal" tabindex="-1" aria-labelledby="yamlModalLabel" aria-hidden="true"
+    style="z-index: 9999 !important;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" style="z-index: 10000 !important;">
+        <div class="modal-content bg-dark border-secondary shadow-lg">
+            <div class="modal-header border-secondary p-4">
+                <h5 class="modal-title fw-bold text-white-force" id="yamlModalLabel">Sigma Rule YAML</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <h6 class="text-accent fw-bold x-small text-uppercase mb-2" id="modalRuleTitle"></h6>
+                    <hr class="border-secondary-subtle opacity-25">
+                </div>
+                <pre
+                    class="bg-black p-3 rounded border border-secondary mb-0"><code class="text-bright small" id="modalRuleYaml" style="white-space: pre-wrap; font-family: 'Courier New', Courier, monospace;"></code></pre>
+            </div>
+            <div class="modal-footer border-secondary p-4">
+                <button type="button" class="btn btn-sm btn-secondary fw-bold" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Rules page logic initialized");
+        const yamlModalEl = document.getElementById('yamlModal');
+
+        if (yamlModalEl) {
+            // Use Bootstrap native event
+            yamlModalEl.addEventListener('show.bs.modal', function (event) {
+                console.log("Modal show event fired");
+                const button = event.relatedTarget;
+                const title = button.getAttribute('data-rule-title');
+                const ruleId = button.getAttribute('data-rule-id');
+
+                document.getElementById('modalRuleTitle').textContent = title || "Sigma Rule";
+                const yamlCode = document.getElementById('modalRuleYaml');
+                yamlCode.textContent = "Fetching YAML content from server...";
+
+                fetch(`/api/rules/yaml/${ruleId}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Server returned " + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log("YAML data received:", data.status);
+                        if (data.status === 'success') {
+                            yamlCode.textContent = data.yaml || "# No YAML content returned.";
+                        } else {
+                            yamlCode.textContent = "Error: " + (data.message || "Unknown error");
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Fetch error:', err);
+                        yamlCode.textContent = "System Error: Failed to fetch YAML. " + err.message;
+                    });
+            });
+        } else {
+            console.error("Critical: yamlModal element not found in DOM");
+        }
     });
 </script>
 {% endblock %}

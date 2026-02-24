@@ -477,6 +477,22 @@ def api_stats():
     return jsonify(stats)
 
 
+@app.route('/api/rules/yaml/<string:rule_id>')
+@login_required
+def get_rule_yaml(rule_id):
+    """
+    API endpoint to fetch the YAML content of a specific Sigma rule.
+    """
+    for rule in ACTIVE_RULES:
+        if rule['id'] == rule_id:
+            return jsonify({
+                'status': 'success', 
+                'yaml': rule.get('yaml', '# YAML content not available.')
+            })
+    
+    return jsonify({'status': 'error', 'message': 'Rule not found'}), 404
+
+
 @app.errorhandler(404)
 def not_found(error):
     """

@@ -57,6 +57,9 @@ def load_sigma_rules(folder_path: str = "sigma_rules") -> List[SigmaRule]:
             # Parse as Sigma rule
             rule = SigmaRule.from_yaml(yaml_content)
             
+            # Store raw YAML for display in dashboard
+            rule.raw_yaml = yaml_content
+            
             # Validate rule has required fields
             if not rule.title:
                 logger.warning(f"Rule missing title: {yaml_file.name}")
@@ -92,7 +95,7 @@ def get_rule_metadata(rule: SigmaRule) -> Dict[str, Any]:
     """
     metadata = {
         'title': rule.title or 'Untitled Rule',
-        'id': str(rule.id) if rule.id else None,
+        'id': str(rule.id) if rule.id else f"rule_{abs(hash(rule.title))}",
         'description': rule.description or rule.title or '',
         'level': rule.level.name.lower() if rule.level else 'medium',
         'status': rule.status.name.lower() if rule.status else 'test',
@@ -104,7 +107,8 @@ def get_rule_metadata(rule: SigmaRule) -> Dict[str, Any]:
             'product': rule.logsource.product if rule.logsource else None,
             'service': rule.logsource.service if rule.logsource else None,
             'category': rule.logsource.category if rule.logsource else None,
-        }
+        },
+        'yaml': getattr(rule, 'raw_yaml', '')
     }
     
     # Extract MITRE ATT&CK techniques from tags
