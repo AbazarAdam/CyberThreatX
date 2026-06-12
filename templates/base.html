@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CyberThreatX | SOC Dashboard{% endblock %}</title>
+    <title>{% block title %}{{ app_title }} | SOC Dashboard{% endblock %}</title>
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +32,7 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <i class="bi bi-shield-lock-fill logo-icon"></i>
-                <span class="logo-text">CYBERTHREATX</span>
+                <span class="logo-text">{{ app_title|upper }}</span>
             </div>
 
             <div class="sidebar-content">
@@ -171,7 +171,7 @@
             <!-- Footer -->
             <footer class="px-4 px-md-5 py-4 border-top border-secondary-subtle">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <p class="text-bright small mb-0">&copy; 2026 CyberThreatX v4.0 | Next-Gen SOC-in-a-Box</p>
+                    <p class="text-bright small mb-0">CyberThreatX v1.1</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-bright small text-decoration-none hover-accent">API Docs</a>
                         <a href="#" class="text-bright small text-decoration-none hover-accent">Support</a>

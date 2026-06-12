@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Alerts | CyberThreatX{% endblock %}
+{% block title %}Alerts | {{ app_title }}{% endblock %}
 {% block page_title %}Alert Management{% endblock %}
 
 {% block content %}
@@ -98,7 +98,7 @@
                         <tbody>
                             {% for alert in alerts %}
                             <tr>
-                                <td class="ps-4 text-black-force small">{{ alert.timestamp[:19] }}</td>
+                                <td class="ps-4 timestamp-contrast small">{{ alert.timestamp[:19] }}</td>
                                 <td>
                                     <div class="fw-bold text-main">{{ alert.rule_name }}</div>
                                     <div class="text-bright" style="font-size: 0.7rem;">ID: #{{ alert.id }} | EID: {% if

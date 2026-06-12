@@ -8,8 +8,11 @@ logsource:
   category: registry
   service: null
 detection:
-  selection: {}
-  condition: selection
+  selection_target:
+    TargetObject|contains:
+      - '\\CurrentVersion\\Run'
+      - '\\CurrentVersion\\RunOnce'
+  condition: selection_target
 level: medium
 tags:
 - attack.generated

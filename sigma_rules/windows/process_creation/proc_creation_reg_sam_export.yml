@@ -7,12 +7,15 @@ logsource:
     product: windows
     category: process_creation
 detection:
-    selection:
+    selection_image:
         Image|endswith: '\reg.exe'
-        CommandLine|all:
-            - [' save ', ' export ']
-            - ' hklm\sam '
-    condition: selection
+    selection_action:
+        CommandLine|contains:
+            - ' save '
+            - ' export '
+    selection_hive:
+        CommandLine|contains: ' hklm\sam '
+    condition: selection_image and selection_action and selection_hive
 level: high
 tags:
     - attack.credential_access

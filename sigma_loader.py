@@ -9,12 +9,14 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 from sigma.rule import SigmaRule
+import config
 
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] %(message)s'
+    level=getattr(logging, config.LOG_LEVEL, logging.INFO),
+    format=config.LOG_FORMAT,
+    datefmt=config.LOG_DATEFMT
 )
 logger = logging.getLogger(__name__)
 
@@ -47,6 +49,8 @@ def load_sigma_rules(folder_path: str = "sigma_rules") -> List[SigmaRule]:
     
     logger.info(f"Found {len(yaml_files)} YAML files in {folder_path}")
     
+    skipped = 0
+
     # Load each file
     for yaml_file in yaml_files:
         try:
@@ -63,10 +67,12 @@ def load_sigma_rules(folder_path: str = "sigma_rules") -> List[SigmaRule]:
             # Validate rule has required fields
             if not rule.title:
                 logger.warning(f"Rule missing title: {yaml_file.name}")
+                skipped += 1
                 continue
             
             if not rule.detection:
                 logger.warning(f"Rule missing detection logic: {yaml_file.name}")
+                skipped += 1
                 continue
             
             rules.append(rule)
@@ -74,12 +80,16 @@ def load_sigma_rules(folder_path: str = "sigma_rules") -> List[SigmaRule]:
             
         except yaml.YAMLError as e:
             logger.error(f"YAML parsing error in {yaml_file.name}: {str(e)}")
+            skipped += 1
             continue
             
         except Exception as e:
             logger.error(f"Error loading {yaml_file.name}: {str(e)}")
+            skipped += 1
             continue
     
+    if skipped:
+        logger.warning(f"Skipped {skipped} invalid Sigma rules")
     logger.info(f"Successfully loaded {len(rules)} Sigma rules")
     return rules
 

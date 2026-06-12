@@ -1,6 +1,10 @@
 # Use official Python image
 FROM python:3.11-slim
 
+# Image metadata
+LABEL org.opencontainers.image.title="CyberThreatX" \
+    org.opencontainers.image.version="1.1"
+
 # Set working directory
 WORKDIR /app
 

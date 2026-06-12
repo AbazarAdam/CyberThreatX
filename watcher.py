@@ -9,6 +9,7 @@ import time
 import logging
 import argparse
 from pathlib import Path
+from typing import Dict, Any
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -20,9 +21,9 @@ import correlation
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    level=getattr(logging, config.LOG_LEVEL, logging.INFO),
+    format=config.LOG_FORMAT,
+    datefmt=config.LOG_DATEFMT
 )
 logger = logging.getLogger(__name__)
 
@@ -201,8 +202,8 @@ and automatically process them using the CyberThreatX detection engine.
     parser.add_argument(
         '--db',
         type=str,
-        default='cyberthreatx.db',
-        help='Path to SQLite database (default: cyberthreatx.db)'
+        default=config.DB_PATH,
+        help=f'Path to SQLite database (default: {config.DB_PATH})'
     )
     
     parser.add_argument(

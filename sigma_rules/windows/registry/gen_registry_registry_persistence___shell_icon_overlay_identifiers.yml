@@ -8,8 +8,9 @@ logsource:
   category: registry
   service: null
 detection:
-  selection: {}
-  condition: selection
+  selection_target:
+    TargetObject|contains: '\\Shell Icon Overlay Identifiers\\'
+  condition: selection_target
 level: medium
 tags:
 - attack.generated

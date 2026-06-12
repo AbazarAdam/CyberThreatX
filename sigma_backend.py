@@ -7,12 +7,14 @@ import re
 import yaml
 import logging
 from typing import Callable, List, Tuple, Dict, Any
+import config
 
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] %(message)s'
+    level=getattr(logging, config.LOG_LEVEL, logging.INFO),
+    format=config.LOG_FORMAT,
+    datefmt=config.LOG_DATEFMT
 )
 logger = logging.getLogger(__name__)
 
@@ -386,7 +388,14 @@ def compile_sigma_rules_from_files(rule_files: List[str]) -> List[Tuple[Dict, Ca
                 rule_yaml = f.read()
             
             rule_dict = yaml.safe_load(rule_yaml)
+            if not isinstance(rule_dict, dict):
+                logger.error(f"Invalid rule format in {rule_file}: expected YAML mapping")
+                continue
+
             title = rule_dict.get('title', 'Unknown')
+            if not rule_dict.get('detection'):
+                logger.error(f"Rule '{title}' missing detection section in {rule_file}")
+                continue
             
             # Actually compile the rule
             matcher = backend.compile_rule_from_yaml(rule_yaml, title)

@@ -19,14 +19,24 @@ import logging
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=getattr(logging, config.LOG_LEVEL, logging.INFO),
+    format=config.LOG_FORMAT,
+    datefmt=config.LOG_DATEFMT
 )
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
+
+
+@app.context_processor
+def inject_app_metadata():
+    """Expose app metadata to templates."""
+    return {
+        'app_title': config.APP_TITLE,
+        'app_version': config.APP_VERSION
+    }
 
 # Global variable for rules (in a real app, this might be in a cache or DB)
 ACTIVE_RULES = []
@@ -504,9 +514,9 @@ def not_found(error):
 def main():
     """Runs the Flask development server after initializing the environment."""
     logger.info("=" * 40)
-    logger.info("🚀 CyberThreatX Web Dashboard")
+    logger.info(f"🚀 {config.APP_TITLE} Web Dashboard")
     logger.info("=" * 40)
-    logger.info(f"📊 Dashboard URL: http://localhost:5000")
+    logger.info(f"📊 Dashboard URL: http://localhost:{config.DASHBOARD_PORT}")
     logger.info(f"💾 Database: {DB_PATH}")
     logger.info("=" * 40)
     
@@ -520,7 +530,7 @@ def main():
     load_app_rules()
     
     # Run Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=config.DEBUG, host=config.DASHBOARD_HOST, port=config.DASHBOARD_PORT)
 
 
 if __name__ == '__main__':

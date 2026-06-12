@@ -8,8 +8,11 @@ logsource:
   category: registry
   service: null
 detection:
-  selection: {}
-  condition: selection
+  selection_target1:
+    TargetObject|contains: '\\CurrentControlSet\\Services\\'
+  selection_target2:
+    TargetObject|contains: 'ImagePath'
+  condition: all of selection_target*
 level: medium
 tags:
 - attack.generated

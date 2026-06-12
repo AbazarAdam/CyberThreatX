@@ -7,9 +7,9 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-      - ./cyberthreatx_v4.db:/app/cyberthreatx.db
+      - ./cyberthreatx.db:/app/cyberthreatx.db
     environment:
-      - FLASK_ENV=development
+      - CYBERTHREATX_DEBUG=false
     restart: always
 
   watcher:
@@ -18,7 +18,7 @@ services:
     volumes:
       - .:/app
       - ./monitored_logs:/app/monitored_logs
-      - ./cyberthreatx_v4.db:/app/cyberthreatx.db
+      - ./cyberthreatx.db:/app/cyberthreatx.db
       - ./sigma_rules:/app/sigma_rules
     restart: always
 

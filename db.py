@@ -5,6 +5,8 @@ Handles all SQLite operations for storing and retrieving threat alerts.
 import sqlite3
 import json
 import logging
+import time
+import functools
 import config
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
@@ -12,7 +14,7 @@ from contextlib import contextmanager
 
 
 # Database file path
-DB_FILE = "cyberthreatx.db"
+DB_FILE = config.DB_PATH
 
 # Password hashing
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,6 +43,35 @@ def get_connection(db_path: str = config.DB_PATH):
         conn.close()
 
 
+def _retry_on_locked(max_retries=3, base_delay=0.1):
+    """Decorator that retries a function on 'database is locked' errors.
+
+    Skips retry if a `conn` kwarg is passed (caller owns the transaction).
+    Uses exponential backoff: 0.1s, 0.2s, 0.4s.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if kwargs.get('conn') is not None:
+                return func(*args, **kwargs)
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except sqlite3.OperationalError as e:
+                    if 'database is locked' in str(e) and attempt < max_retries:
+                        delay = base_delay * (2 ** attempt)
+                        logger.warning(
+                            f"[RETRY] Database locked in {func.__name__}, "
+                            f"attempt {attempt + 1}/{max_retries}, "
+                            f"retrying in {delay:.2f}s"
+                        )
+                        time.sleep(delay)
+                    else:
+                        raise
+        return wrapper
+    return decorator
+
+
 def init_db(db_path: str = config.DB_PATH) -> None:
     """Initializes the database schema and performs necessary migrations.
 
@@ -50,7 +81,7 @@ def init_db(db_path: str = config.DB_PATH) -> None:
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         
-        # 1. Alerts Table (Updated for V4)
+        # 1. Alerts Table (Updated for v1.1)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS alerts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -152,7 +183,18 @@ def init_db(db_path: str = config.DB_PATH) -> None:
         """)
         
         # 7. Event Baseline Table (for ML Scoring)
-        cursor.execute("DROP TABLE IF EXISTS event_baseline")
+        cursor.execute("PRAGMA table_info(event_baseline)")
+        baseline_columns = {row['name'] for row in cursor.fetchall()}
+        expected_columns = {
+            'computer',
+            'event_type',
+            'average_count',
+            'peak_count',
+            'last_updated'
+        }
+        if baseline_columns and baseline_columns != expected_columns:
+            cursor.execute("DROP TABLE IF EXISTS event_baseline")
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS event_baseline (
                 computer TEXT NOT NULL,
@@ -187,6 +229,7 @@ def init_db(db_path: str = config.DB_PATH) -> None:
         logger.info(f"[✓] Database initialized/upgraded: {db_path}")
 
 
+@_retry_on_locked()
 def add_notification(user_id: int, message: str, type: str = 'info', db_path: str = config.DB_PATH) -> int:
     """Adds a new notification for a user."""
     with get_connection(db_path) as conn:
@@ -207,6 +250,7 @@ def get_notifications(user_id: int, limit: int = 10, db_path: str = config.DB_PA
         )
         return [dict(row) for row in cursor.fetchall()]
 
+@_retry_on_locked()
 def mark_notifications_as_read(user_id: int, db_path: str = config.DB_PATH):
     """Marks all notifications for a user as read."""
     with get_connection(db_path) as conn:
@@ -214,6 +258,7 @@ def mark_notifications_as_read(user_id: int, db_path: str = config.DB_PATH):
         cursor.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ?", (user_id,))
 
 
+@_retry_on_locked()
 def insert_alert(alert_dict: Dict[str, Any], db_path: str = config.DB_PATH) -> int:
     """Inserts a new alert into the database.
 
@@ -456,6 +501,7 @@ def get_unique_rules(db_path: str = DB_FILE) -> List[str]:
 
 # --- User Management ---
 
+@_retry_on_locked()
 def create_user(username: str, password_raw: str, role: str = 'analyst', db_path: str = DB_FILE) -> int:
     """Create a new user with a hashed password."""
     password_hash = generate_password_hash(password_raw)
@@ -490,6 +536,7 @@ def verify_user(username: str, password_raw: str, db_path: str = DB_FILE) -> Opt
         return user
     return None
 
+@_retry_on_locked()
 def update_user(user_id: int, username: str = None, password_raw: str = None, role: str = None, db_path: str = DB_FILE) -> bool:
     """Update user details."""
     updates = []
@@ -513,6 +560,7 @@ def update_user(user_id: int, username: str = None, password_raw: str = None, ro
         cursor.execute(f"UPDATE users SET {', '.join(updates)} WHERE id = ?", params)
         return True
 
+@_retry_on_locked()
 def delete_user(user_id: int, db_path: str = DB_FILE) -> bool:
     """Delete a user."""
     with get_connection(db_path) as conn:
@@ -522,6 +570,7 @@ def delete_user(user_id: int, db_path: str = DB_FILE) -> bool:
 
 # --- Alert Triage ---
 
+@_retry_on_locked()
 def update_alert_status(alert_id: int, status: str, user_id: int = None, db_path: str = DB_FILE, conn=None) -> bool:
     """Update alert status and log action."""
     if conn:
@@ -536,6 +585,7 @@ def update_alert_status(alert_id: int, status: str, user_id: int = None, db_path
         log_action(user_id, 'update_status', 'alert', alert_id, f"Changed status to {status}", db_path, conn=conn)
         return True
 
+@_retry_on_locked()
 def assign_alert(alert_id: int, user_id: int, assigner_id: int = None, db_path: str = DB_FILE, conn=None) -> bool:
     """Assign alert to a user."""
     if conn:
@@ -550,6 +600,7 @@ def assign_alert(alert_id: int, user_id: int, assigner_id: int = None, db_path: 
         log_action(assigner_id, 'assign_alert', 'alert', alert_id, f"Assigned to user {user_id}", db_path, conn=conn)
         return True
 
+@_retry_on_locked()
 def add_alert_comment(alert_id: int, user_id: int, comment: str, db_path: str = DB_FILE) -> int:
     """Add a comment to an alert."""
     with get_connection(db_path) as conn:
@@ -559,7 +610,7 @@ def add_alert_comment(alert_id: int, user_id: int, comment: str, db_path: str = 
             (alert_id, user_id, comment)
         )
         comment_id = cursor.lastrowid
-        log_action(user_id, 'add_comment', 'alert', alert_id, "Added comment", db_path)
+        log_action(user_id, 'add_comment', 'alert', alert_id, "Added comment", db_path, conn=conn)
         return comment_id
 
 def get_alert_comments(alert_id: int, db_path: str = DB_FILE) -> List[Dict[str, Any]]:
@@ -600,6 +651,7 @@ def get_correlation_by_id(corr_id: int, db_path: str = DB_FILE) -> Optional[Dict
         row = cursor.fetchone()
         return dict(row) if row else None
 
+@_retry_on_locked()
 def insert_correlation_alert(data: Dict[str, Any], db_path: str = DB_FILE) -> int:
     """Insert a new correlation alert."""
     with get_connection(db_path) as conn:
@@ -620,6 +672,7 @@ def insert_correlation_alert(data: Dict[str, Any], db_path: str = DB_FILE) -> in
         ))
         return cursor.lastrowid
 
+@_retry_on_locked()
 def update_correlation_status(corr_id: int, status: str, db_path: str = DB_FILE) -> bool:
     """Update correlation status."""
     with get_connection(db_path) as conn:
@@ -629,6 +682,7 @@ def update_correlation_status(corr_id: int, status: str, db_path: str = DB_FILE)
 
 # --- Audit & Logging ---
 
+@_retry_on_locked()
 def log_action(user_id: int, action: str, target_type: str = None, target_id: int = None, details: str = None, db_path: str = DB_FILE, conn=None):
     """Log system actions for auditing."""
     if conn:
@@ -648,15 +702,16 @@ def log_action(user_id: int, action: str, target_type: str = None, target_id: in
 
 # --- ML Baseline (Partial) ---
 
-def update_baseline(computer: str, event_id: int, hour: int, day: int, count: int, db_path: str = DB_FILE):
-    """Update historical baseline for an event."""
+@_retry_on_locked()
+def update_baseline(computer: str, event_type: str, average_count: float, peak_count: int, db_path: str = DB_FILE):
+    """Update baseline statistics for an event type."""
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
-        # Simple moving average placeholder
         cursor.execute("""
-            INSERT INTO event_baseline (computer, event_id, hour, day_of_week, avg_count, last_updated)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            ON CONFLICT(computer, event_id, hour, day_of_week) DO UPDATE SET
-                avg_count = (avg_count * 0.9) + (? * 0.1),
+            INSERT INTO event_baseline (computer, event_type, average_count, peak_count, last_updated)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(computer, event_type) DO UPDATE SET
+                average_count = excluded.average_count,
+                peak_count = excluded.peak_count,
                 last_updated = CURRENT_TIMESTAMP
-        """, (computer, event_id, hour, day, count, count))
+        """, (computer, event_type, average_count, peak_count))

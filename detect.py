@@ -1,5 +1,5 @@
 """
-CyberThreatX - Threat Detection Engine (Version 3)
+CyberThreatX v1.1 - Threat Detection Engine
 Main entry point for parsing EVTX files and detecting threats using Sigma rules.
 """
 
@@ -8,7 +8,7 @@ import json
 import sys
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Callable
+from typing import Dict, Any, List, Tuple, Callable, Optional
 from tqdm import tqdm
 
 from evtx_parser import parse_evtx
@@ -17,9 +17,14 @@ import sigma_backend
 from log_ingest import LogIngestor
 import threat_intel
 import ml_engine
+import config
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(
+    level=getattr(logging, config.LOG_LEVEL, logging.INFO),
+    format=config.LOG_FORMAT,
+    datefmt=config.LOG_DATEFMT
+)
 logger = logging.getLogger(__name__)
 
 
@@ -181,7 +186,7 @@ def process_evtx_file(
         db.init_db(db_path)
     
     if show_progress:
-        logger.info(f"[*] CyberThreatX - Threat Detection Engine v4.0")
+        logger.info(f"[*] {config.APP_TITLE} - Threat Detection Engine")
         logger.info(f"[*] Processing: {evtx_file}")
     
     alerts_count = 0
@@ -282,7 +287,7 @@ def main():
     Main entry point for the detection engine.
     """
     parser = argparse.ArgumentParser(
-        description="CyberThreatX - Windows EVTX Threat Detection Engine (Version 3)",
+        description="CyberThreatX v1.1 - Windows EVTX Threat Detection Engine",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

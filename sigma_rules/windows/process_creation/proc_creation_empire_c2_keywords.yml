@@ -7,17 +7,18 @@ logsource:
     product: windows
     category: process_creation
 detection:
-    selection:
+    selection_flags:
         CommandLine|contains:
             - ' -w 1 '
             - ' -e '
             - ' -nop '
             - ' -enc '
+    selection_keywords:
         CommandLine|contains:
             - 'Invoke-Empire'
             - 'Start-Empire'
             - 'Empire.ps1'
-    condition: selection
+    condition: selection_flags and selection_keywords
 level: high
 tags:
     - attack.command_and_control

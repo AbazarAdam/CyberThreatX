@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | CyberThreatX{% endblock %}
+{% block title %}Dashboard | {{ app_title }}{% endblock %}
 {% block page_title %}Security Overview{% endblock %}
 
 {% block content %}
@@ -150,7 +150,7 @@
                         <tbody>
                             {% for alert in recent_alerts %}
                             <tr>
-                                <td class="text-bright small">{{ alert.timestamp[5:19] }}</td>
+                                <td class="timestamp-contrast small">{{ alert.timestamp[5:19] }}</td>
                                 <td>
                                     <div class="fw-bold text-main">{{ alert.rule_name }}</div>
                                     <div class="text-bright x-small">ID: {{ alert.id }}</div>
