@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# CyberThreatX (Version 4.0)
-=======
 # CyberThreatX v1.1
->>>>>>> 0e0b912 (merged origin/main)
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -63,9 +59,6 @@ graph TD
    cd CyberThreatX
    ```
 
-<<<<<<< HEAD
-2. **Install dependencies:**
-=======
 2. **Set up virtual environment:**
    ```bash
     python -m venv .venv
@@ -73,20 +66,14 @@ graph TD
    ```
 
 3. **Install dependencies:**
->>>>>>> 0e0b912 (merged origin/main)
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Initialize Configuration:**
    ```bash
-<<<<<<< HEAD
-   cp config.example.py config.py
-   # Edit config.py with your API keys and paths (if needed)
-=======
     cp config.example.py config.py  # Windows: copy config.example.py config.py
    # Edit config.py with your API keys and paths
->>>>>>> 0e0b912 (merged origin/main)
    ```
 
 ---
@@ -98,24 +85,12 @@ The easiest way to start both the dashboard and the log watcher is using the uni
 ```bash
 python run_all.py
 ```
-<<<<<<< HEAD
-This will launch the dashboard at [http://localhost:5000](http://localhost:5000) and start monitoring the `monitored_logs` directory.
-
-### Manual Launch
-If you prefer to run components separately:
-
-1. **Start the Dashboard**: `python dashboard.py`
-2. **Start the Log Watcher**: `python watcher.py --watch-dir monitored_logs`
-
-Access at [http://localhost:5000](http://localhost:5000). Default credentials: `admin` / `changeme`.
-=======
 Access at [http://localhost:5000](http://localhost:5000). Default credentials: `admin` / `changeme` (configurable in config.py).
 
 To enable debug mode during development:
 ```bash
 set CYBERTHREATX_DEBUG=true  # Windows PowerShell: $env:CYBERTHREATX_DEBUG = "true"
 ```
->>>>>>> 0e0b912 (merged origin/main)
 
 ### ⚡ Manual Ingestion
 ```bash
