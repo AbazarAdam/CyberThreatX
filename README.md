@@ -5,6 +5,7 @@
 [![SOC-in-a-Box](https://img.shields.io/badge/Capability-SOC--in--a--Box-red.svg)]()
 
 **CyberThreatX** is a modern, lightweight SOC-in-a-Box solution designed for real-time threat detection, log ingestion, and alert management. It integrates Sigma rules, machine learning anomaly scoring, and threat intelligence to provide a comprehensive security monitoring platform.
+<img width="1341" height="614" alt="image" src="https://github.com/user-attachments/assets/8f93c8ad-4e21-4e21-a266-075e7d89282a" />
 
 ---
 
