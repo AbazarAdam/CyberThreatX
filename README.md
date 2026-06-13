@@ -130,3 +130,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 **Abazar Adam**
 - GitHub: [@AbazarAdam](https://github.com/AbazarAdam)
+- LinkedIn: [@AbazarAdam](https://www.linkedin.com/in/abazaradam)
